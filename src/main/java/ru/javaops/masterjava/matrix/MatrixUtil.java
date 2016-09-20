@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * gkislin
@@ -17,10 +18,10 @@ public class MatrixUtil {
     // TODO implement parallel multiplication matrixA*matrixB
     public static int[][] concurrentMultiply(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
         final int[][] result = new int[matrixA.length][matrixA.length];
-        final List<Callable<Boolean>> tasks = new ArrayList<>();
+        final List<Runnable> tasks = new ArrayList<>();
         for (int i = 0; i < matrixA.length; i++) {
             final int iCopy = i;
-            final Callable<Boolean> current = () -> {
+            final Runnable current = () -> {
                 for (int y = 0; y < matrixA.length; y++) {
                     int resultInt = 0;
                     for (int k = 0; k < matrixA.length; k++) {
@@ -28,14 +29,15 @@ public class MatrixUtil {
                     }
                     result[iCopy][y] = resultInt;
                 }
-                return Boolean.TRUE;
             };
             tasks.add(current);
         }
 
-        final List<Future<Boolean>> dones = executor.invokeAll(tasks);
-        for (Future<Boolean> done : dones) {
-            done.get();
+        final List<? extends Future<?>> futures = tasks.stream()
+                .map(executor::submit)
+                .collect(Collectors.toList());
+        for (Future future : futures) {
+            future.get();
         }
         return result;
     }
