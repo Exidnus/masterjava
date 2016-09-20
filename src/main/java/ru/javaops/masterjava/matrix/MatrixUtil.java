@@ -1,8 +1,12 @@
 package ru.javaops.masterjava.matrix;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * gkislin
@@ -12,7 +16,28 @@ public class MatrixUtil {
 
     // TODO implement parallel multiplication matrixA*matrixB
     public static int[][] concurrentMultiply(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
-        return null;
+        final int[][] result = new int[matrixA.length][matrixA.length];
+        final List<Callable<Boolean>> tasks = new ArrayList<>();
+        for (int i = 0; i < matrixA.length; i++) {
+            final int iCopy = i;
+            final Callable<Boolean> current = () -> {
+                for (int y = 0; y < matrixA.length; y++) {
+                    int resultInt = 0;
+                    for (int k = 0; k < matrixA.length; k++) {
+                        resultInt += matrixA[iCopy][k] * matrixB[k][y];
+                    }
+                    result[iCopy][y] = resultInt;
+                }
+                return Boolean.TRUE;
+            };
+            tasks.add(current);
+        }
+
+        final List<Future<Boolean>> dones = executor.invokeAll(tasks);
+        for (Future<Boolean> done : dones) {
+            done.get();
+        }
+        return result;
     }
 
     public static int[][] singleThreadMultiply(int[][] matrixA, int[][] matrixB) {
