@@ -22,7 +22,7 @@ public class MainMatrix {
         double concurrentThreadSum = 0.;
         for (int i = 0; i < 5; i++) {
             long start = System.currentTimeMillis();
-            final int[][] matrixC = MatrixUtil.singleThreadMultiply(matrixA, matrixB);
+            final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(matrixA, matrixB);
             double duration = (System.currentTimeMillis() - start) / 1000.;
             out("Single thread time, sec: %.3f", duration);
             singleThreadSum += duration;

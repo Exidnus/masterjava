@@ -19,7 +19,7 @@ public class MailService {
         final CompletionService<MailResult> completionService = new ExecutorCompletionService<>(mailExecutor);
 
         List<Future<MailResult>> futures = emails.stream()
-                .map(email -> mailExecutor.submit(() -> sendToUser(template, email)))
+                .map(email -> completionService.submit(() -> sendToUser(template, email)))
                 .collect(Collectors.toList());
 
         return new Callable<GroupResult>() {
