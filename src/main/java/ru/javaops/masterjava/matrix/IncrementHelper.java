@@ -11,13 +11,17 @@ public class IncrementHelper {
     private volatile int y = 0;
 
     public synchronized Pair<Integer, Integer> getAndIncrement() {
-        Pair<Integer, Integer> result = new Pair<>(x, y);
-        y++;
-        if (y >= MainMatrix.MATRIX_SIZE) {
-            y = 0;
-            x++;
+        if (haveMoreWork()) {
+            Pair<Integer, Integer> result = new Pair<>(x, y);
+            y++;
+            if (y >= MainMatrix.MATRIX_SIZE) {
+                y = 0;
+                x++;
+            }
+            return result;
+        } else {
+            return new Pair<>(0, 0);
         }
-        return result;
     }
 
     public synchronized boolean haveMoreWork() {

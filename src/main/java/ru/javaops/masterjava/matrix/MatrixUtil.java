@@ -21,9 +21,9 @@ public class MatrixUtil {
 
         final IncrementHelper helper = new IncrementHelper();
         int[][] result = new int[matrix1.length][matrix1.length];
-        List<Thread> threads = new ArrayList<>();
+        final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < MainMatrix.THREAD_NUMBER - 1; i++) {
-            Thread worker = new Thread(() -> {
+            final Thread worker = new Thread(() -> {
                 while (helper.haveMoreWork() && !Thread.currentThread().isInterrupted()) {
                     Pair<Integer, Integer> current = helper.getAndIncrement();
                     final int x = current.getKey();
