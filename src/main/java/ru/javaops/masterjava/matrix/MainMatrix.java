@@ -9,8 +9,8 @@ import java.util.concurrent.Executors;
  * 03.07.2016
  */
 public class MainMatrix {
-    private static final int MATRIX_SIZE = 1000;
-    private static final int THREAD_NUMBER = 10;
+    static final int MATRIX_SIZE = 1000;
+    static final int THREAD_NUMBER = 10;
 
     private final static ExecutorService executor = Executors.newFixedThreadPool(MainMatrix.THREAD_NUMBER);
 
@@ -20,6 +20,7 @@ public class MainMatrix {
 
         double singleThreadSum = 0.;
         double concurrentThreadSum = 0.;
+        //double concurrent14ThreadSum = 0.;
         for (int i = 0; i < 5; i++) {
             long start = System.currentTimeMillis();
             final int[][] matrixC = MatrixUtil.singleThreadMultiply(matrixA, matrixB);
@@ -33,14 +34,25 @@ public class MainMatrix {
             out("Concurrent thread time, sec: %.3f", duration);
             concurrentThreadSum += duration;
 
+            /*start = System.currentTimeMillis();
+            final int[][] concurrent14MatrixC = MatrixUtil.multiplyWithOnlyJava14(matrixA, matrixB);
+            duration = (System.currentTimeMillis() - start) / 1000.;
+            out("Concurrent with 1.4 Java only thread time, sec: %.3f", duration);
+            concurrent14ThreadSum += duration;*/
+
             if (!MatrixUtil.compare(matrixC, concurrentMatrixC)) {
                 System.err.println("Comparison failed");
                 break;
             }
+            /*if (!MatrixUtil.compare(matrixC, concurrent14MatrixC)) {
+                System.err.println("Comparison failed");
+                break;
+            }*/
         }
         executor.shutdown();
         out("\nAverage single thread time, sec: %.3f", singleThreadSum / 5.);
         out("Average concurrent thread time, sec: %.3f", concurrentThreadSum / 5.);
+        //out("Average concurrent with 1.4 Java only thread time, sec: %.3f", concurrent14ThreadSum / 5.);
     }
 
     private static void out(String format, double ms) {
