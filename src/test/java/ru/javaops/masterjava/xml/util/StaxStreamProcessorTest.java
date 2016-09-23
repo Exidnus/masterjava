@@ -14,7 +14,7 @@ public class StaxStreamProcessorTest {
     @Test
     public void readCities() throws Exception {
         try (StaxStreamProcessor processor =
-                     new StaxStreamProcessor(Resources.getResource(StaxStreamProcessorTest.class, "/payload.xml").openStream())) {
+                     new StaxStreamProcessor(Resources.getResource("payload.xml").openStream())) {
             XMLStreamReader reader = processor.getReader();
             while (reader.hasNext()) {
                 int event = reader.next();
@@ -30,7 +30,7 @@ public class StaxStreamProcessorTest {
     @Test
     public void readCities2() throws Exception {
         try (StaxStreamProcessor processor =
-                     new StaxStreamProcessor(Resources.getResource(StaxStreamProcessorTest.class, "/payload.xml").openStream())) {
+                     new StaxStreamProcessor(Resources.getResource("payload.xml").openStream())) {
             String city;
             while ((city = processor.getElementValue("City")) != null) {
                 System.out.println(city);

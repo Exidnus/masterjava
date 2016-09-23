@@ -30,7 +30,7 @@ public class Schemas {
 
     public static synchronized Schema ofClasspath(String resource) {
         // http://digitalsanctum.com/2012/11/30/how-to-read-file-contents-in-java-the-easy-way-with-guava/
-        return ofURL(Resources.getResource(Schema.class, resource));
+        return ofURL(Resources.getResource(resource));
     }
 
     public static synchronized Schema ofURL(URL url) {
