@@ -20,7 +20,7 @@ public class IncrementHelper {
         return result;
     }
 
-    public boolean haveMoreWork() {
+    public synchronized boolean haveMoreWork() {
         return x < MainMatrix.MATRIX_SIZE;
     }
 }
