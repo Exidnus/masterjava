@@ -63,8 +63,28 @@
 
     <xs:element name="Project">
         <xs:complexType>
-            <xs:attribute type="xs:string" name="name" use="required"/>
-            <xs:attribute type="xs:string" name="description" use="optional"/>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="name" use="required">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:minLength value="4"/>
+                                <xs:maxLength value="20"/>
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:attribute>
+                    <xs:attribute name="description" use="optional">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:minLength value="4"/>
+                                <xs:maxLength value="200"/>
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:attribute>
+                </xs:extension>
+            </xs:simpleContent>
+            <!--<xs:attribute type="xs:string" name="name" use="required"/>
+            <xs:attribute type="xs:string" name="description" use="optional"/>-->
         </xs:complexType>
     </xs:element>
 
