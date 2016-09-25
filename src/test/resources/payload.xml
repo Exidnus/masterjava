@@ -20,4 +20,8 @@
         <City id="kiv">Киев</City>
         <City id="mnsk">Минск</City>
     </Cities>
+    <Projects>
+        <Project name="first"/>
+        <Project name="second" description="description for second project"/>
+    </Projects>
 </Payload>
