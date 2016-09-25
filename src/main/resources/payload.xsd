@@ -28,6 +28,13 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="Participants">
+                    <xs:complexType>
+                        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                            <xs:element ref="Participant"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -63,7 +70,10 @@
 
     <xs:element name="Project">
         <xs:complexType>
-            <xs:simpleContent>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="Group"/>
+            </xs:sequence>
+            <!--<xs:complexContent>
                 <xs:extension base="xs:string">
                     <xs:attribute name="name" use="required">
                         <xs:simpleType>
@@ -82,9 +92,41 @@
                         </xs:simpleType>
                     </xs:attribute>
                 </xs:extension>
-            </xs:simpleContent>
-            <!--<xs:attribute type="xs:string" name="name" use="required"/>
-            <xs:attribute type="xs:string" name="description" use="optional"/>-->
+            </xs:complexContent>-->
+            <xs:attribute type="xs:string" name="name" use="required"/>
+            <xs:attribute type="xs:string" name="description" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="Group">
+        <xs:complexType>
+            <xs:sequence minOccurs="1" maxOccurs="200">
+                <xs:element ref="Group_member"/>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="name" use="required"/>
+            <xs:attribute type="groupType" name="type" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:simpleType name="groupType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="REGISTERING"/>
+            <xs:enumeration value="CURRENT"/>
+            <xs:enumeration value="FINISHED"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:element name="Participant">
+        <xs:complexType>
+            <xs:attribute type="xs:ID" name="id" use="required"/>
+            <xs:attribute type="xs:string" name="firstName" use="required"/>
+            <xs:attribute type="xs:string" name="lastName" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="Group_member">
+        <xs:complexType>
+            <xs:attribute type="xs:IDREF" name="id_participant" use="required"/>
         </xs:complexType>
     </xs:element>
 

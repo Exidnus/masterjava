@@ -21,7 +21,20 @@
         <City id="mnsk">Минск</City>
     </Cities>
     <Projects>
-        <Project name="first"/>
-        <Project name="second" description="description for second project"/>
+        <Project name="topjava" description="cool project">
+            <Group name="topjava06" type="FINISHED">
+                <Group_member id_participant="dvarygin"/>
+                <Group_member id_participant="iivanov"/>
+            </Group>
+            <Group name="topjava08" type="CURRENT">
+                <Group_member id_participant="ssemenov"/>
+            </Group>
+        </Project>
+        <Project name="masterjava" description="cool project too"/>
     </Projects>
+    <Participants>
+        <Participant id="dvarygin" firstName="Dmitriy" lastName="Varygin"/>
+        <Participant id="iivanov" firstName="Ivan" lastName="Ivanov"/>
+        <Participant id="ssemenov" firstName="Semen" lastName="Semenov"/>
+    </Participants>
 </Payload>

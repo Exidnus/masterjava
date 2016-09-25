@@ -20,11 +20,11 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType>
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence maxOccurs="unbounded" minOccurs="0">
- *         &lt;element ref="{http://javaops.ru}Group"/>
+ *       &lt;sequence maxOccurs="200">
+ *         &lt;element ref="{http://javaops.ru}Group_member"/>
  *       &lt;/sequence>
  *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="description" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="type" use="required" type="{http://javaops.ru}groupType" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -34,45 +34,45 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "group"
+    "groupMember"
 })
-@XmlRootElement(name = "Project", namespace = "http://javaops.ru")
-public class Project {
+@XmlRootElement(name = "Group", namespace = "http://javaops.ru")
+public class Group {
 
-    @XmlElement(name = "Group", namespace = "http://javaops.ru")
-    protected List<Group> group;
+    @XmlElement(name = "Group_member", namespace = "http://javaops.ru", required = true)
+    protected List<GroupMember> groupMember;
     @XmlAttribute(name = "name", required = true)
     protected String name;
-    @XmlAttribute(name = "description")
-    protected String description;
+    @XmlAttribute(name = "type", required = true)
+    protected GroupType type;
 
     /**
-     * Gets the value of the group property.
+     * Gets the value of the groupMember property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the group property.
+     * This is why there is not a <CODE>set</CODE> method for the groupMember property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getGroup().add(newItem);
+     *    getGroupMember().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link Group }
+     * {@link GroupMember }
      * 
      * 
      */
-    public List<Group> getGroup() {
-        if (group == null) {
-            group = new ArrayList<Group>();
+    public List<GroupMember> getGroupMember() {
+        if (groupMember == null) {
+            groupMember = new ArrayList<GroupMember>();
         }
-        return this.group;
+        return this.groupMember;
     }
 
     /**
@@ -100,27 +100,27 @@ public class Project {
     }
 
     /**
-     * Gets the value of the description property.
+     * Gets the value of the type property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link GroupType }
      *     
      */
-    public String getDescription() {
-        return description;
+    public GroupType getType() {
+        return type;
     }
 
     /**
-     * Sets the value of the description property.
+     * Sets the value of the type property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link GroupType }
      *     
      */
-    public void setDescription(String value) {
-        this.description = value;
+    public void setType(GroupType value) {
+        this.type = value;
     }
 
 }

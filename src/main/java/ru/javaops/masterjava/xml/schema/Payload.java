@@ -53,6 +53,17 @@ import javax.xml.bind.annotation.XmlType;
  *             &lt;/complexContent>
  *           &lt;/complexType>
  *         &lt;/element>
+ *         &lt;element name="Participants">
+ *           &lt;complexType>
+ *             &lt;complexContent>
+ *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *                 &lt;sequence maxOccurs="unbounded" minOccurs="0">
+ *                   &lt;element ref="{http://javaops.ru}Participant"/>
+ *                 &lt;/sequence>
+ *               &lt;/restriction>
+ *             &lt;/complexContent>
+ *           &lt;/complexType>
+ *         &lt;/element>
  *       &lt;/all>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -74,6 +85,8 @@ public class Payload {
     protected Payload.Users users;
     @XmlElement(name = "Projects", namespace = "http://javaops.ru", required = true)
     protected Payload.Projects projects;
+    @XmlElement(name = "Participants", namespace = "http://javaops.ru", required = true)
+    protected Payload.Participants participants;
 
     /**
      * Gets the value of the cities property.
@@ -147,6 +160,30 @@ public class Payload {
         this.projects = value;
     }
 
+    /**
+     * Gets the value of the participants property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Payload.Participants }
+     *     
+     */
+    public Payload.Participants getParticipants() {
+        return participants;
+    }
+
+    /**
+     * Sets the value of the participants property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Payload.Participants }
+     *     
+     */
+    public void setParticipants(Payload.Participants value) {
+        this.participants = value;
+    }
+
 
     /**
      * <p>Java class for anonymous complex type.
@@ -203,6 +240,66 @@ public class Payload {
                 city = new ArrayList<CityType>();
             }
             return this.city;
+        }
+
+    }
+
+
+    /**
+     * <p>Java class for anonymous complex type.
+     * 
+     * <p>The following schema fragment specifies the expected content contained within this class.
+     * 
+     * <pre>
+     * &lt;complexType>
+     *   &lt;complexContent>
+     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+     *       &lt;sequence maxOccurs="unbounded" minOccurs="0">
+     *         &lt;element ref="{http://javaops.ru}Participant"/>
+     *       &lt;/sequence>
+     *     &lt;/restriction>
+     *   &lt;/complexContent>
+     * &lt;/complexType>
+     * </pre>
+     * 
+     * 
+     */
+    @XmlAccessorType(XmlAccessType.FIELD)
+    @XmlType(name = "", propOrder = {
+        "participant"
+    })
+    public static class Participants {
+
+        @XmlElement(name = "Participant", namespace = "http://javaops.ru")
+        protected List<Participant> participant;
+
+        /**
+         * Gets the value of the participant property.
+         * 
+         * <p>
+         * This accessor method returns a reference to the live list,
+         * not a snapshot. Therefore any modification you make to the
+         * returned list will be present inside the JAXB object.
+         * This is why there is not a <CODE>set</CODE> method for the participant property.
+         * 
+         * <p>
+         * For example, to add a new item, do as follows:
+         * <pre>
+         *    getParticipant().add(newItem);
+         * </pre>
+         * 
+         * 
+         * <p>
+         * Objects of the following type(s) are allowed in the list
+         * {@link Participant }
+         * 
+         * 
+         */
+        public List<Participant> getParticipant() {
+            if (participant == null) {
+                participant = new ArrayList<Participant>();
+            }
+            return this.participant;
         }
 
     }
