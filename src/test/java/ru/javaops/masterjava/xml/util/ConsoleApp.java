@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static j2html.TagCreator.*;
@@ -59,18 +60,10 @@ public class ConsoleApp {
                 .getGroup()
                 .stream()
                 .map(Group::getGroupMember)
-                .reduce(this::unionLists)
+                .reduce((ls1, ls2) -> Stream.concat(ls1.stream(), ls2.stream()).collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
         return getDistinctAndSortedParticipants(groupMembers);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> List<T> unionLists(List<T> first, List<T> second) {
-        final List<T> union = new ArrayList<>();
-        Collections.addAll(union, (T[]) first.toArray());
-        Collections.addAll(union, (T[]) second.toArray());
-        return union;
     }
 
     private List<Participant> getDistinctAndSortedParticipants(final List<GroupMember> groupMembers) {
