@@ -21,11 +21,11 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Threads(1)
-@Fork(1)
+@Fork(10)
 @Timeout(time = 5, timeUnit = TimeUnit.MINUTES)
 public class MatrixBenchmark {
     // Matrix size
-    @Param({"100", "1000"})
+    @Param({"1000"})
     private int matrixSize;
 
     private static final int THREAD_NUMBER = 10;
@@ -44,25 +44,25 @@ public class MatrixBenchmark {
         Options options = new OptionsBuilder()
                 .include(MatrixBenchmark.class.getSimpleName())
                 .threads(1)
-                .forks(1)
+                .forks(10)
                 .timeout(TimeValue.minutes(5))
                 .build();
         new Runner(options).run();
     }
 
-//    @Benchmark
+    //    @Benchmark
     public int[][] singleThreadMultiply() throws Exception {
         return MatrixUtil.singleThreadMultiplyOpt(matrixA, matrixB);
     }
 
     @Benchmark
-    public int[][] concurrentMultiplyCayman() throws Exception {
-        return MatrixUtil.concurrentMultiplyCayman(matrixA, matrixB, executor);
+    public int[][] concurrentMultiplyDarthVader() throws Exception {
+        return MatrixUtil.concurrentMultiplyDarthVader(matrixA, matrixB, executor);
     }
 
     @Benchmark
-    public int[][] concurrentMultiplyDarthVader() throws Exception {
-        return MatrixUtil.concurrentMultiplyDarthVader(matrixA, matrixB, executor);
+    public int[][] concurrentMultiplyArray() throws Exception {
+        return MatrixUtil.concurrentMultiplyArray(matrixA, matrixB, executor);
     }
 
     @Benchmark

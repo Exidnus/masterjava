@@ -18,32 +18,28 @@ public class MainMatrix {
         final int[][] matrixA = MatrixUtil.create(MATRIX_SIZE);
         final int[][] matrixB = MatrixUtil.create(MATRIX_SIZE);
 
-        double singleThreadSum = 0.;
-        double concurrentThreadSum = 0.;
-        for (int i = 0; i < 5; i++) {
-            long start = System.currentTimeMillis();
-            final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(matrixA, matrixB);
-            double duration = (System.currentTimeMillis() - start) / 1000.;
-            out("Single thread time, sec: %.3f", duration);
-            singleThreadSum += duration;
+        final int[][] matrixC = MatrixUtil.singleThreadMultiplyOpt(matrixA, matrixB);
 
-            start = System.currentTimeMillis();
-            final int[][] concurrentMatrixC = MatrixUtil.concurrentMultiply(matrixA, matrixB, executor);
-            duration = (System.currentTimeMillis() - start) / 1000.;
-            out("Concurrent thread time, sec: %.3f", duration);
-            concurrentThreadSum += duration;
+        int[][] concurrentMatrixC = MatrixUtil.concurrentMultiplyDarthVader(matrixA, matrixB, executor);
+        compare(matrixC, concurrentMatrixC);
 
-            if (!MatrixUtil.compare(matrixC, concurrentMatrixC)) {
-                System.err.println("Comparison failed");
-                break;
-            }
-        }
+        concurrentMatrixC = MatrixUtil.concurrentMultiply(matrixA, matrixB, executor);
+        compare(matrixC, concurrentMatrixC);
+
+        concurrentMatrixC = MatrixUtil.concurrentMultiply2(matrixA, matrixB, executor);
+        compare(matrixC, concurrentMatrixC);
+
+        concurrentMatrixC = MatrixUtil.concurrentMultiplyArray(matrixA, matrixB, executor);
+        compare(matrixC, concurrentMatrixC);
+
         executor.shutdown();
-        out("\nAverage single thread time, sec: %.3f", singleThreadSum / 5.);
-        out("Average concurrent thread time, sec: %.3f", concurrentThreadSum / 5.);
     }
 
-    private static void out(String format, double ms) {
-        System.out.println(String.format(format, ms));
+    private static void compare(int[][] matrix1, int[][] matrix2) {
+        if (!MatrixUtil.compare(matrix1, matrix2)) {
+            System.err.println("Comparison failed");
+        } else {
+            System.out.println("OK");
+        }
     }
 }

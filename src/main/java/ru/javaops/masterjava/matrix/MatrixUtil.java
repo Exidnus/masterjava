@@ -59,42 +59,42 @@ public class MatrixUtil {
         return matrixC;
     }
 
-    public static int[][] concurrentMultiplyCayman(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
+    public static int[][] concurrentMultiplyArray(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
         final int matrixSize = matrixA.length;
-        final int[][] matrixResult = new int[matrixSize][matrixSize];
-        final int threadCount = Runtime.getRuntime().availableProcessors();
-        final int maxIndex = matrixSize * matrixSize;
-        final int cellsInThread = maxIndex / threadCount;
-        final int[][] matrixBFinal = new int[matrixSize][matrixSize];
+        final int totalSize = matrixSize * matrixSize;
+        final int[][] matrixC = new int[matrixSize][];
 
+        final int[] matrixBT = new int[totalSize];
         for (int i = 0; i < matrixSize; i++) {
+            int[] rowB = matrixB[i];
+            int offset = i;
             for (int j = 0; j < matrixSize; j++) {
-                matrixBFinal[i][j] = matrixB[j][i];
+                matrixBT[offset] = rowB[j];
+                offset += matrixSize;
             }
         }
 
-        Set<Callable<Boolean>> threads = new HashSet<>();
-        int fromIndex = 0;
-        for (int i = 1; i <= threadCount; i++) {
-            final int toIndex = i == threadCount ? maxIndex : fromIndex + cellsInThread;
-            final int firstIndexFinal = fromIndex;
-            threads.add(() -> {
-                for (int j = firstIndexFinal; j < toIndex; j++) {
-                    final int row = j / matrixSize;
-                    final int col = j % matrixSize;
-
+        List<Callable<Void>> tasks = new ArrayList<>(matrixSize);
+        for (int j = 0; j < matrixSize; j++) {
+            final int row = j;
+            final int[] rowA = matrixA[row];
+            tasks.add(() -> {
+                final int[] rowC = new int[matrixSize];
+                int offset = 0;
+                for (int col = 0; col < matrixSize; col++) {
                     int sum = 0;
                     for (int k = 0; k < matrixSize; k++) {
-                        sum += matrixA[row][k] * matrixBFinal[col][k];
+                        sum += rowA[k] * matrixBT[offset + k];
                     }
-                    matrixResult[row][col] = sum;
+                    rowC[col] = sum;
+                    offset += matrixSize;
                 }
-                return true;
+                matrixC[row] = rowC;
+                return null;
             });
-            fromIndex = toIndex;
         }
-        executor.invokeAll(threads);
-        return matrixResult;
+        executor.invokeAll(tasks);
+        return matrixC;
     }
 
     public static int[][] concurrentMultiplyDarthVader(int[][] matrixA, int[][] matrixB, ExecutorService executor)
@@ -144,10 +144,10 @@ public class MatrixUtil {
         List<Callable<Void>> tasks = new ArrayList<>(matrixSize);
         for (int j = 0; j < matrixSize; j++) {
             final int row = j;
+            final int[] rowA = matrixA[row];
             tasks.add(() -> {
                 final int[] rowC = new int[matrixSize];
                 for (int col = 0; col < matrixSize; col++) {
-                    final int[] rowA = matrixA[row];
                     final int[] columnB = matrixBT[col];
                     int sum = 0;
                     for (int k = 0; k < matrixSize; k++) {
