@@ -2,6 +2,7 @@ package ru.javaops.masterjava.xml.util;
 
 import com.google.common.io.Resources;
 import j2html.tags.Tag;
+import me.yanaga.guava.stream.MoreCollectors;
 import ru.javaops.masterjava.xml.schema.*;
 
 import java.io.BufferedOutputStream;
@@ -60,7 +61,7 @@ public class ConsoleApp {
                 .getGroup()
                 .stream()
                 .map(Group::getGroupMember)
-                .reduce((ls1, ls2) -> Stream.concat(ls1.stream(), ls2.stream()).collect(Collectors.toList()))
+                .reduce((list1, list2) -> Stream.concat(list1.stream(), list2.stream()).collect(MoreCollectors.toImmutableList()))
                 .orElse(Collections.emptyList());
 
         return getDistinctAndSortedParticipants(groupMembers);
@@ -68,7 +69,7 @@ public class ConsoleApp {
 
     private List<Participant> getDistinctAndSortedParticipants(final List<GroupMember> groupMembers) {
         return groupMembers.stream()
-                .map(g -> (Participant) g.getIdParticipant())
+                .map(groupMember -> (Participant) groupMember.getIdParticipant())
                 .distinct()
                 .sorted((p1, p2) -> {
                     final int idCompared = p1.getId().compareTo(p2.getId());
@@ -83,7 +84,7 @@ public class ConsoleApp {
                         return idCompared;
                     }
                 })
-                .collect(Collectors.toList());
+                .collect(MoreCollectors.toImmutableList());
     }
 
     private String getHtmlAsString(final List<Participant> participants) {
@@ -107,7 +108,9 @@ public class ConsoleApp {
                 ))
                 .collect(Collectors.toList());
 
-        participantsAsTableRows.add(0, tr().with(td("id"), td("First Name"), td("Last Name")));
+        participantsAsTableRows.add(0, tr().with(
+                td("id"), td("First Name"), td("Last Name"))
+        );
 
         return table().with(participantsAsTableRows);
     }
