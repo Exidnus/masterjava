@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,15 +29,17 @@ public class ConsoleApp {
 
     public static void main(String[] args) throws Exception {
         checkArgument(args.length >= 2, "You should specify project name and path to xml");
-        new ConsoleApp(args[0], args[1]).printHtml();
+        new ConsoleApp(args[0], args[1], PATH_TO_RESULT_HTML).printHtml();
     }
 
     private final String projectName;
-    private final String xmlPath;
+    private final String xmlSourcePath;
+    private final String htmlResultPath;
 
-    public ConsoleApp(String projectName, String xmlPath) {
+    public ConsoleApp(String projectName, String xmlSourcePath, String htmlResultPath) {
         this.projectName = projectName;
-        this.xmlPath = xmlPath;
+        this.xmlSourcePath = xmlSourcePath;
+        this.htmlResultPath = htmlResultPath;
     }
 
     public void printHtml() throws Exception {
@@ -50,13 +51,13 @@ public class ConsoleApp {
 
     private Payload getPayload() throws Exception {
         final JaxbParser parser = new JaxbParser(ObjectFactory.class);
-        return parser.unmarshal(Resources.getResource(xmlPath).openStream());
+        return parser.unmarshal(Resources.getResource(xmlSourcePath).openStream());
     }
 
     private List<Participant> getParticipants(final Payload payload, final String projectName) {
         final List<GroupMember> groupMembers = payload.getProjects().getProject().stream()
                 .filter(project -> project.getName().equals(projectName))
-                .findFirst()
+                .findAny()
                 .orElseThrow(() -> new RuntimeException("There is not project with name " + projectName))
                 .getGroup()
                 .stream()
@@ -116,7 +117,7 @@ public class ConsoleApp {
     }
 
     private void makeHtmlFile(final String htmlAsString) throws IOException {
-        try (OutputStream output = new BufferedOutputStream(Files.newOutputStream(Paths.get(PATH_TO_RESULT_HTML)))) {
+        try (OutputStream output = new BufferedOutputStream(Files.newOutputStream(Paths.get(htmlResultPath)))) {
             output.write(htmlAsString.getBytes());
         }
     }
