@@ -25,16 +25,30 @@
             <Group name="topjava06" type="FINISHED">
                 <Group_member id_participant="dvarygin"/>
                 <Group_member id_participant="iivanov"/>
+                <Group_member id_participant="vsemenov"/>
             </Group>
             <Group name="topjava08" type="CURRENT">
                 <Group_member id_participant="ssemenov"/>
+                <Group_member id_participant="ipetrov"/>
+                <Group_member id_participant="sivanov"/>
             </Group>
         </Project>
-        <Project name="masterjava" description="cool project too"/>
+        <Project name="masterjava" description="cool project too">
+            <Group name="masterjava01" type="CURRENT">
+                <Group_member id_participant="dvarygin"/>
+                <Group_member id_participant="spetrov"/>
+                <Group_member id_participant="svasiliev"/>
+            </Group>
+        </Project>
     </Projects>
     <Participants>
         <Participant id="dvarygin" firstName="Dmitriy" lastName="Varygin"/>
         <Participant id="iivanov" firstName="Ivan" lastName="Ivanov"/>
         <Participant id="ssemenov" firstName="Semen" lastName="Semenov"/>
+        <Participant id="spetrov" firstName="Semen" lastName="Petrov"/>
+        <Participant id="sivanov" firstName="Semen" lastName="Ivanov"/>
+        <Participant id="ipetrov" firstName="Ivan" lastName="Petrov"/>
+        <Participant id="vsemenov" firstName="Vasiliy" lastName="Semenov"/>
+        <Participant id="svasiliev" firstName="Semen" lastName="Vasiliev"/>
     </Participants>
 </Payload>
