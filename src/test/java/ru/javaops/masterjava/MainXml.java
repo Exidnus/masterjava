@@ -12,6 +12,7 @@ import ru.javaops.masterjava.xml.schema.User;
 import ru.javaops.masterjava.xml.util.JaxbParser;
 import ru.javaops.masterjava.xml.util.Schemas;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
+import ru.javaops.masterjava.xml.util.XsltProcessor;
 
 import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
@@ -53,6 +54,23 @@ public class MainXml {
 
         users = main.processByStax(projectName, payloadUrl);
         users.forEach(u -> System.out.println("Name: '" + u.getValue() + "', email: " + u.getEmail()));
+
+        String html = main.transform(projectName, payloadUrl);
+        System.out.println(html);
+        try (Writer writer = Files.newBufferedWriter(Paths.get("out/groupsXslt.html"))) {
+            writer.write(html);
+        }
+    }
+
+    private String transform(String projectName, URL payloadUrl) throws Exception {
+        URL xsl = Resources.getResource("groups.xsl");
+        try (InputStream xmlStream = payloadUrl.openStream(); InputStream xslStream = xsl.openStream()) {
+            XsltProcessor processor = new XsltProcessor(xslStream);
+//        http://stackoverflow.com/questions/1667454/xsl-transformation-in-java-with-parameters
+//            http://www.w3schools.com/xsl/el_param.asp
+            processor.setParameter("projectName", projectName);
+            return processor.transform(xmlStream);
+        }
     }
 
     private Set<User> processByStax(String projectName, URL payloadUrl) throws Exception {
