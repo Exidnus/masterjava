@@ -66,8 +66,9 @@ public class MainXml {
         URL xsl = Resources.getResource("groups.xsl");
         try (InputStream xmlStream = payloadUrl.openStream(); InputStream xslStream = xsl.openStream()) {
             XsltProcessor processor = new XsltProcessor(xslStream);
+
 //        http://stackoverflow.com/questions/1667454/xsl-transformation-in-java-with-parameters
-//            http://www.w3schools.com/xsl/el_param.asp
+//        http://www.w3schools.com/xsl/el_param.asp
             processor.setParameter("projectName", projectName);
             return processor.transform(xmlStream);
         }
@@ -96,6 +97,7 @@ public class MainXml {
             if (groupNames.isEmpty()) {
                 throw new IllegalArgumentException("Invalid " + projectName + " or no groups");
             }
+
             // Users loop
             while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
                 String groupRefs = processor.getAttribute("groupRefs");
