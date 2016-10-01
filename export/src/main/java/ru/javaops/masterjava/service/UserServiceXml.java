@@ -1,5 +1,6 @@
 package ru.javaops.masterjava.service;
 
+import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -7,7 +8,7 @@ import java.net.URL;
  */
 public interface UserServiceXml {
 
-    void saveUsersFromXmlToBD(String projectName, URL source);
+    void saveUsersFromXmlToBD(String projectName, InputStream is);
 
     static UserServiceXml getUserServiceXml() {
         return new UserServiceXmlImpl();

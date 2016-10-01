@@ -1,5 +1,11 @@
 package ru.javaops.masterjava.web;
 
+import com.google.common.base.Strings;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import ru.javaops.masterjava.service.UserServiceXml;
@@ -10,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author Varygin DV {@literal <OUT-Varygin-DV@mail.ca.sbrf.ru>}
@@ -28,6 +35,19 @@ public class UploadServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("!!!");
+        final ServletFileUpload upload = new ServletFileUpload();
+        try {
+            final FileItemIterator itemIterator = upload.getItemIterator(req);
+            while (itemIterator.hasNext()) {
+                final FileItemStream stream = itemIterator.next();
+                if (!Strings.isNullOrEmpty(stream.getName())) {
+                    try (InputStream is = stream.openStream()) {
+                        userServiceXml.saveUsersFromXmlToBD("topjava", is);
+                    }
+                }
+            }
+        } catch (FileUploadException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

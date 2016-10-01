@@ -10,6 +10,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import ru.javaops.masterjava.da.UserDa;
 import ru.javaops.masterjava.da.model.UserDaDto;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 
@@ -27,9 +29,9 @@ public class UserServiceXmlTest {
     private final UserServiceXml userServiceXml = new UserServiceXmlImpl().withUserDa(userDa);
 
     @Test
-    public void shouldExtractUserFromXmlAndCallDa() {
-        final URL payloadUrl = Resources.getResource("payload.xml");
-        userServiceXml.saveUsersFromXmlToBD(PROJECT_NAME, payloadUrl);
+    public void shouldExtractUserFromXmlAndCallDa() throws IOException {
+        final InputStream is = Resources.getResource("payload.xml").openStream();
+        userServiceXml.saveUsersFromXmlToBD(PROJECT_NAME, is);
 
         Mockito.verify(userDa, Mockito.atLeast(1)).saveUsers(listUsersDaCaptor.capture());
 

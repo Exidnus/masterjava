@@ -26,8 +26,8 @@ class UserServiceXmlImpl implements UserServiceXml {
     private UserDa userDa = UserDa.getUserDa();
 
     @Override
-    public void saveUsersFromXmlToBD(String projectName, URL source) {
-        try (final InputStream is = source.openStream()) {
+    public void saveUsersFromXmlToBD(final String projectName, final InputStream is) {
+        try {
             final StaxStreamProcessor processor = new StaxStreamProcessor(is);
             final Set<String> groupNames = new HashSet<>();
             String element;
@@ -75,7 +75,7 @@ class UserServiceXmlImpl implements UserServiceXml {
                 userDa.saveUsers(users);
             }
 
-        } catch (IOException | XMLStreamException e) {
+        } catch (XMLStreamException e) {
             throw new RuntimeException(e);
         }
     }
