@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>test</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>

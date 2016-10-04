@@ -15,6 +15,5 @@
         <module>export</module>
         <module>web</module>
         <module>mail-service</module>
-        <module>test</module>
     </modules>
 </project>
