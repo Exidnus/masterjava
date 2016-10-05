@@ -20,6 +20,11 @@ public class UserDaDto {
         this.city = city;
     }
 
+    public UserDaDto(Integer id, String fullName, String email, String city) {
+        this(fullName, email, city);
+        this.id = id;
+    }
+
     public Integer getId() {
         return id;
     }

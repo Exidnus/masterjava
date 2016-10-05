@@ -25,18 +25,9 @@ public class UserDaJdbcTemplateImpl implements UserDa {
             .addValue("city", u.getCity());
 
     public UserDaJdbcTemplateImpl() {
-        final DataSource dataSource = initDataSource();
+        final DataSource dataSource = DataSourceSupplier.getDataSource();
         namedParameterTemplate = new NamedParameterJdbcTemplate(dataSource);
         insert = new SimpleJdbcInsert(dataSource).withTableName("users").usingGeneratedKeyColumns("id");
-    }
-
-    private DataSource initDataSource() {
-        final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(""); //TODO
-        dataSource.setUrl("");
-        dataSource.setUsername("");
-        dataSource.setPassword("");
-        return dataSource;
     }
 
     @Override
