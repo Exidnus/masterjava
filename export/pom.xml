@@ -15,5 +15,10 @@
     <packaging>war</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
 </project>

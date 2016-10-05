@@ -32,6 +32,10 @@ public class UserDaDto {
         return id == null;
     }
 
+    public boolean isNotNew() {
+        return id != null;
+    }
+
     public String getFullName() {
         return fullName;
     }
