@@ -9,13 +9,13 @@ import javax.servlet.ServletContext;
 /**
  * @author Varygin DV {@literal <OUT-Varygin-DV@mail.ca.sbrf.ru>}
  */
-public class ThymeleafAppUtil {
+class ThymeleafAppUtil {
 
     private ThymeleafAppUtil() {
 
     }
 
-    public static TemplateEngine getTemplateResolver(ServletContext context) {
+    static TemplateEngine getTemplateEngine(ServletContext context) {
         final ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(context);
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setPrefix("/WEB-INF/templates/");

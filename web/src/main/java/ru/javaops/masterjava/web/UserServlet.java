@@ -1,5 +1,7 @@
 package ru.javaops.masterjava.web;
 
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
 import ru.javaops.masterjava.da.model.UserDaDto;
 import ru.javaops.masterjava.service.UserService;
 
@@ -17,11 +19,14 @@ import java.util.List;
 @WebServlet("/all")
 public class UserServlet extends HttpServlet {
 
-    //private final UserService userService = UserService.getUserService();
+    private final UserService userService = UserService.getUserService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //final List<UserDaDto> users = userService.getAllSorted();
-        //TODO
+        final List<UserDaDto> users = userService.getAllSorted();
+        final WebContext webContext = new WebContext(req, resp, req.getServletContext(), req.getLocale());
+        webContext.setVariable("users", users);
+        final TemplateEngine engine = ThymeleafAppUtil.getTemplateEngine(getServletContext());
+        engine.process("allUsers", webContext, resp.getWriter());
     }
 }
