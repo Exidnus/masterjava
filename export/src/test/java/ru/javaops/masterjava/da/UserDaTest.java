@@ -1,8 +1,6 @@
 package ru.javaops.masterjava.da;
 
 import com.google.common.collect.ImmutableSet;
-import junit.framework.TestCase;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.javaops.masterjava.da.model.UserDaDto;
@@ -11,10 +9,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Varygin DV {@literal <OUT-Varygin-DV@mail.ca.sbrf.ru>}
  */
-public class UserDaTest extends TestCase {
+public class UserDaTest {
 
     private final UserDa userDa = UserDa.getUserDa();
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceSupplier.getPostgresDataSource());
@@ -35,14 +35,13 @@ public class UserDaTest extends TestCase {
 
         userDa.saveUsers(users);
 
-        final int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
-        assertEquals(count, users.size());
+        assertEquals(countAllInBD(), users.size());
     }
 
     @Test
     public void shouldGetAllSortedByFullNameAndCity() {
         final List<UserDaDto> allSorted = userDa.getAllSorted();
-        assertTrue(allSorted.size() > 0);
+        assertEquals(countAllInBD(), allSorted.size());
 
         final List<UserDaDto> checkSort = allSorted.stream()
                 .sorted(Comparator.comparing(UserDaDto::getFullName)
@@ -50,5 +49,9 @@ public class UserDaTest extends TestCase {
                 .collect(Collectors.toList());
 
         assertEquals(allSorted, checkSort);
+    }
+
+    private int countAllInBD() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
     }
 }
