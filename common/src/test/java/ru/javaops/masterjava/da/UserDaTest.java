@@ -22,7 +22,6 @@ public class UserDaTest {
     @Test
     public void shouldSaveUsers() {
 
-        final int previous = countAllInDB();
         final ImmutableSet<UserDaDto> users = ImmutableSet.of(
                 new UserDaDto("Vasiliy", "vas@mail.ru", "Kiev"),
                 new UserDaDto("Semen", "sem@mail.ru", "Moscow"),
@@ -30,8 +29,8 @@ public class UserDaTest {
                 new UserDaDto("Peter", "peter@mail.ru", "Kiev")
         );
 
+        final int previous = countAllInDB();
         userDa.saveUsers(users);
-
         assertEquals(previous + countAllInDB(), users.size());
     }
 
