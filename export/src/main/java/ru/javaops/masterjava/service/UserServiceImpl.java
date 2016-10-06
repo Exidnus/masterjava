@@ -1,10 +1,8 @@
 package ru.javaops.masterjava.service;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import ru.javaops.masterjava.da.UserDa;
-import ru.javaops.masterjava.da.UserDaJdbcTemplateImpl;
 import ru.javaops.masterjava.da.model.UserDaDto;
 import ru.javaops.masterjava.xml.schema.User;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
@@ -29,7 +27,7 @@ public class UserServiceImpl implements UserService {
     private static final String USERS = "Users";
     private static final String GROUP = "Group";
 
-    private final UserDa userDa = new UserDaJdbcTemplateImpl();
+    private final UserDa userDa = UserDa.getUserDa();
 
     @Override
     public void saveUsersFromXmlToBD(String projectName, URL source) {
