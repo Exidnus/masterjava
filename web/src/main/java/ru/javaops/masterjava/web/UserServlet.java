@@ -17,11 +17,11 @@ import java.util.List;
 @WebServlet("/all")
 public class UserServlet extends HttpServlet {
 
-    private final UserService userService = UserService.getUserService();
+    //private final UserService userService = UserService.getUserService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final List<UserDaDto> users = userService.getAllSorted();
+        //final List<UserDaDto> users = userService.getAllSorted();
         //TODO
     }
 }
