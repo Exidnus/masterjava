@@ -19,29 +19,26 @@ public class UserDaTest {
     private final UserDa userDa = UserDa.getUserDa();
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceSupplier.getPostgresDataSource());
 
-    //@Test
-    public void clearTable() {
-        jdbcTemplate.execute("DELETE FROM users");
-    }
-
     @Test
     public void shouldSaveUsers() {
+
+        final int previous = countAllInDB();
         final ImmutableSet<UserDaDto> users = ImmutableSet.of(
                 new UserDaDto("Vasiliy", "vas@mail.ru", "Kiev"),
-                new UserDaDto(22, "Semen", "sem@mail.ru", "Moscow"),
+                new UserDaDto("Semen", "sem@mail.ru", "Moscow"),
                 new UserDaDto("Dmitriy", "dm@mail.ru", "Moscow"),
-                new UserDaDto(1, "Peter", "peter@mail.ru", "Kiev")
+                new UserDaDto("Peter", "peter@mail.ru", "Kiev")
         );
 
         userDa.saveUsers(users);
 
-        assertEquals(countAllInBD(), users.size());
+        assertEquals(previous + countAllInDB(), users.size());
     }
 
     @Test
     public void shouldGetAllSortedByFullNameAndCity() {
         final List<UserDaDto> allSorted = userDa.getAllSorted();
-        assertEquals(countAllInBD(), allSorted.size());
+        assertEquals(countAllInDB(), allSorted.size());
 
         final List<UserDaDto> checkSort = allSorted.stream()
                 .sorted(Comparator.comparing(UserDaDto::getFullName)
@@ -51,7 +48,7 @@ public class UserDaTest {
         assertEquals(allSorted, checkSort);
     }
 
-    private int countAllInBD() {
+    private int countAllInDB() {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
     }
 }

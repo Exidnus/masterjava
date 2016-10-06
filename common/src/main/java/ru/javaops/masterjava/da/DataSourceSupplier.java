@@ -19,10 +19,10 @@ class DataSourceSupplier {
         private static DriverManagerDataSource dataSource;
         static {
             dataSource = new DriverManagerDataSource();
-            dataSource.setDriverClassName(""); //TODO
-            dataSource.setUrl("");
-            dataSource.setUsername("");
-            dataSource.setPassword("");
+            dataSource.setDriverClassName("org.postgresql.Driver"); //TODO
+            dataSource.setUrl("jdbc:postgresql://localhost:5500/masterjava");
+            dataSource.setUsername("user");
+            dataSource.setPassword("password");
         }
     }
 
