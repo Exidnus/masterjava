@@ -33,14 +33,6 @@ public class UserDaDto {
         this.id = id;
     }
 
-    public boolean isNew() {
-        return id == null;
-    }
-
-    public boolean isNotNew() {
-        return id != null;
-    }
-
     public String getFullName() {
         return fullName;
     }

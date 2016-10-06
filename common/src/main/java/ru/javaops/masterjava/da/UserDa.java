@@ -15,6 +15,6 @@ public interface UserDa {
     List<UserDaDto> getAllSorted();
 
     static UserDa getUserDa() {
-        return new UserDaJdbcTemplateImpl(DataSourceSupplier.getPostgresDataSource());
+        return new UserDaJdbcTemplate(DataSourceSupplier.getPostgresDataSource());
     }
 }
