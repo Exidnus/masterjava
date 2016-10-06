@@ -23,7 +23,7 @@ class UserServiceXmlImpl implements UserServiceXml {
     private static final String USERS = "Users";
     private static final String GROUP = "Group";
 
-    private final UserDa userDa = UserDa.getUserDa();
+    private UserDa userDa = UserDa.getUserDa();
 
     @Override
     public void saveUsersFromXmlToBD(String projectName, URL source) {
@@ -57,10 +57,6 @@ class UserServiceXmlImpl implements UserServiceXml {
 
                 for (String ref : Splitter.on(' ').split(groupRefs)) {
                     if (groupNames.contains(ref)) {
-                        /*User user = new User();
-                        user.setEmail(processor.getAttribute("email"));
-                        user.setValue(processor.getReader().getElementText());
-                        users.add(user);*/
                         final String email = processor.getAttribute("email");
                         final String fullName = processor.getReader().getElementText();
                         final UserDaDto forSaveToDB = new UserDaDto(fullName, email, "stubForCity");
@@ -75,10 +71,18 @@ class UserServiceXmlImpl implements UserServiceXml {
                 }
             }
 
-            userDa.saveUsers(users);
+            if (!users.isEmpty()) {
+                userDa.saveUsers(users);
+            }
 
         } catch (IOException | XMLStreamException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //for test
+    UserServiceXmlImpl withUserDa(UserDa userDa) {
+        this.userDa = userDa;
+        return this;
     }
 }

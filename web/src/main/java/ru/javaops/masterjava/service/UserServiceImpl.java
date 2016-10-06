@@ -1,5 +1,6 @@
 package ru.javaops.masterjava.service;
 
+import com.google.common.collect.ImmutableList;
 import ru.javaops.masterjava.da.UserDa;
 import ru.javaops.masterjava.da.model.UserDaDto;
 
@@ -14,6 +15,6 @@ class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDaDto> getAllSorted() {
-        return userDa.getAllSorted();
+        return ImmutableList.copyOf(userDa.getAllSorted());
     }
 }

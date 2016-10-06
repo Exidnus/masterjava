@@ -1,0 +1,38 @@
+package ru.javaops.masterjava.service;
+
+import com.google.common.io.Resources;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.*;
+import org.mockito.runners.MockitoJUnitRunner;
+import ru.javaops.masterjava.da.UserDa;
+import ru.javaops.masterjava.da.model.UserDaDto;
+
+import java.net.URL;
+import java.util.Collection;
+
+/**
+ * @author Varygin DV {@literal <OUT-Varygin-DV@mail.ca.sbrf.ru>}
+ */
+@RunWith(MockitoJUnitRunner.class)
+public class UserServiceXmlTest {
+
+    private static final String PROJECT_NAME = "topjava";
+
+    @Captor
+    private ArgumentCaptor<Collection<UserDaDto>> listUsersDaCaptor;
+    private final UserDa userDa = Mockito.mock(UserDa.class);
+    private final UserServiceXml userServiceXml = new UserServiceXmlImpl().withUserDa(userDa);
+
+    @Test
+    public void shouldExtractUserFromXmlAndCallDa() {
+        final URL payloadUrl = Resources.getResource("payload.xml");
+        userServiceXml.saveUsersFromXmlToBD(PROJECT_NAME, payloadUrl);
+
+        Mockito.verify(userDa, Mockito.atLeast(1)).saveUsers(listUsersDaCaptor.capture());
+
+        Assert.assertEquals(listUsersDaCaptor.getValue().size(), 4);
+    }
+}
