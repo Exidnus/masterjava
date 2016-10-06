@@ -7,15 +7,19 @@ import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.javaops.masterjava.da.model.UserDaDto;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * @author Varygin DV {@literal <OUT-Varygin-DV@mail.ca.sbrf.ru>}
  */
 public class UserDaTest extends TestCase {
 
-    private final UserDa userDa = new UserDaJdbcTemplateImpl();
-    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceSupplier.getDataSource());
+    private final UserDa userDa = UserDa.getUserDa();
+    private final JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceSupplier.getPostgresDataSource());
 
-    @Before
+    //@Test
     public void clearTable() {
         jdbcTemplate.execute("DELETE FROM users");
     }
@@ -33,5 +37,18 @@ public class UserDaTest extends TestCase {
 
         final int count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
         assertEquals(count, users.size());
+    }
+
+    @Test
+    public void shouldGetAllSortedByFullNameAndCity() {
+        final List<UserDaDto> allSorted = userDa.getAllSorted();
+        assertTrue(allSorted.size() > 0);
+
+        final List<UserDaDto> checkSort = allSorted.stream()
+                .sorted(Comparator.comparing(UserDaDto::getFullName)
+                        .thenComparing(UserDaDto::getCity))
+                .collect(Collectors.toList());
+
+        assertEquals(allSorted, checkSort);
     }
 }

@@ -1,33 +1,38 @@
 package ru.javaops.masterjava.da;
 
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import ru.javaops.masterjava.da.model.UserDaDto;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 
 /**
  * @author Varygin DV {@literal <OUT-Varygin-DV@mail.ca.sbrf.ru>}
  */
-public class UserDaJdbcTemplateImpl implements UserDa {
+class UserDaJdbcTemplateImpl implements UserDa {
 
     private final NamedParameterJdbcTemplate namedParameterTemplate;
     private final SimpleJdbcInsert insert;
+    private final JdbcTemplate template;
+
     private final Function<UserDaDto, MapSqlParameterSource> userToMapSqlParameters = u -> new MapSqlParameterSource()
             .addValue("id", u.getId())
             .addValue("fullName", u.getFullName())
             .addValue("email", u.getEmail())
             .addValue("city", u.getCity());
+    private final BeanPropertyRowMapper<UserDaDto> rowMapper = BeanPropertyRowMapper.newInstance(UserDaDto.class);
 
-    public UserDaJdbcTemplateImpl() {
-        final DataSource dataSource = DataSourceSupplier.getDataSource();
+    UserDaJdbcTemplateImpl(final DataSource dataSource) {
         namedParameterTemplate = new NamedParameterJdbcTemplate(dataSource);
         insert = new SimpleJdbcInsert(dataSource).withTableName("users").usingGeneratedKeyColumns("id");
+        template = new JdbcTemplate(dataSource);
     }
 
     @Override
@@ -45,5 +50,10 @@ public class UserDaJdbcTemplateImpl implements UserDa {
                 .toArray(MapSqlParameterSource[]::new);
         namedParameterTemplate.batchUpdate("UPDATE users SET full_name=:fullName, email=:email, city=:city, " +
                 "WHERE id=:id", forUpdate);
+    }
+
+    @Override
+    public List<UserDaDto> getAllSorted() {
+        return template.query("SELECT * FROM users ORDER BY full_name, city", rowMapper);
     }
 }
