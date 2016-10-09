@@ -31,10 +31,10 @@ public class UserServiceXmlTest {
     @Test
     public void shouldExtractUserFromXmlAndCallDa() throws IOException {
         final InputStream is = Resources.getResource("payload.xml").openStream();
-        userServiceXml.saveUsersFromXmlToBD(PROJECT_NAME, is);
+        userServiceXml.saveUsersFromXmlToBD(is);
 
         Mockito.verify(userDa, Mockito.atLeast(1)).saveUsers(listUsersDaCaptor.capture());
 
-        Assert.assertEquals(listUsersDaCaptor.getValue().size(), 4);
+        Assert.assertEquals(listUsersDaCaptor.getValue().size(), 6);
     }
 }

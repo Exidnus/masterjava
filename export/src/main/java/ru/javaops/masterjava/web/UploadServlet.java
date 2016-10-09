@@ -42,7 +42,7 @@ public class UploadServlet extends HttpServlet {
                 final FileItemStream stream = itemIterator.next();
                 if (!Strings.isNullOrEmpty(stream.getName())) {
                     try (InputStream is = stream.openStream()) {
-                        userServiceXml.saveUsersFromXmlToBD("topjava", is);
+                        userServiceXml.saveUsersFromXmlToBD(is);
                     }
                 }
             }

@@ -19,51 +19,20 @@ import java.util.Set;
  */
 class UserServiceXmlImpl implements UserServiceXml {
 
-    private static final String PROJECT = "Project";
-    private static final String USERS = "Users";
-    private static final String GROUP = "Group";
-
     private UserDa userDa = UserDa.getUserDa();
 
     @Override
-    public void saveUsersFromXmlToBD(final String projectName, final InputStream is) {
+    public void saveUsersFromXmlToBD(final InputStream is) {
         try {
             final StaxStreamProcessor processor = new StaxStreamProcessor(is);
-            final Set<String> groupNames = new HashSet<>();
-            String element;
-            // Projects loop
-            projects:
-            while (processor.doUntil(XMLEvent.START_ELEMENT, PROJECT)) {
-                if (projectName.equals(processor.getAttribute("name"))) {
-                    // Groups loop
-                    while ((element = processor.doUntilAny(XMLEvent.START_ELEMENT, PROJECT, GROUP, USERS)) != null) {
-                        if (!element.equals(GROUP)) {
-                            break projects;
-                        }
-                        groupNames.add(processor.getAttribute("name"));
-                    }
-                }
-            }
-            if (groupNames.isEmpty()) {
-                throw new IllegalArgumentException("Invalid " + projectName + " or no groups");
-            }
             final Set<UserDaDto> users = new HashSet<>();
             // Users loop
             while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
-                String groupRefs = processor.getAttribute("groupRefs");
 
-//   http://stackoverflow.com/questions/8708542/something-like-contains-any-for-java-set
-                if (StringUtils.isEmpty(groupRefs)) continue;
-
-                for (String ref : Splitter.on(' ').split(groupRefs)) {
-                    if (groupNames.contains(ref)) {
-                        final String email = processor.getAttribute("email");
-                        final String fullName = processor.getReader().getElementText();
-                        final UserDaDto forSaveToDB = new UserDaDto(fullName, email, "stubForCity");
-                        users.add(forSaveToDB);
-                        break;
-                    }
-                }
+                final String email = processor.getAttribute("email");
+                final String fullName = processor.getReader().getElementText();
+                final UserDaDto forSaveToDB = new UserDaDto(fullName, email, "stubForCity");
+                users.add(forSaveToDB);
 
                 if (users.size() == 100) {
                     userDa.saveUsers(users);
