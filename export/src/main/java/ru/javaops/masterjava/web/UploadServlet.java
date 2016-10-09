@@ -25,14 +25,14 @@ import java.util.concurrent.*;
 @WebServlet("/export")
 public class UploadServlet extends HttpServlet {
 
+    private static final int NUMBER_THREADS = Runtime.getRuntime().availableProcessors();
+
     private final UserServiceXml userServiceXml = UserServiceXml.getUserServiceXml();
-    private final ExecutorService service = Executors.newFixedThreadPool(4);
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUMBER_THREADS);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final WebContext webContext = new WebContext(req, resp, req.getServletContext(), req.getLocale());
-        final TemplateEngine engine = ThymeleafAppUtil.getTemplateEngine(getServletContext());
-        engine.process("export", webContext, resp.getWriter());
+        showHtmlForUploadingXml(req, resp);
     }
 
     @Override
@@ -41,29 +41,32 @@ public class UploadServlet extends HttpServlet {
         final ServletFileUpload upload = new ServletFileUpload(factory);
         try {
             final List<FileItem> fileItems = upload.parseRequest(req);
-            final List<Future> futures = new ArrayList<>();
+            final List<Callable<Void>> tasks = new ArrayList<>();
             fileItems.stream()
                     .filter(file -> !Strings.isNullOrEmpty(file.getName()))
                     .forEach(file -> {
-                        final Future<?> future = service.submit(() -> {
+                        final Callable<Void> task = () -> {
                             try (InputStream is = file.getInputStream()) {
                                 userServiceXml.saveUsersFromXmlToBD(is);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
-                        });
-                        futures.add(future);
+                            return null;
+                        };
+                        tasks.add(task);
                     });
 
-            futures.forEach(future -> {
-                try {
-                    future.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        } catch (FileUploadException e) {
+            executor.invokeAll(tasks);
+        } catch (InterruptedException | FileUploadException e) {
             throw new RuntimeException(e);
         }
+
+        showHtmlForUploadingXml(req, resp);
+    }
+
+    private void showHtmlForUploadingXml(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        final WebContext webContext = new WebContext(req, resp, req.getServletContext(), req.getLocale());
+        final TemplateEngine engine = ThymeleafAppUtil.getTemplateEngine(getServletContext());
+        engine.process("export", webContext, resp.getWriter());
     }
 }
