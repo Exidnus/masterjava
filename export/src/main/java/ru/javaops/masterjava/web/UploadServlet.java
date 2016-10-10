@@ -25,10 +25,7 @@ import java.util.concurrent.*;
 @WebServlet("/export")
 public class UploadServlet extends HttpServlet {
 
-    private static final int NUMBER_THREADS = Runtime.getRuntime().availableProcessors();
-
     private final UserServiceXml userServiceXml = UserServiceXml.getUserServiceXml();
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUMBER_THREADS);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -37,27 +34,13 @@ public class UploadServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final DiskFileItemFactory factory = new DiskFileItemFactory();
-        final ServletFileUpload upload = new ServletFileUpload(factory);
+        final ServletFileUpload upload = new ServletFileUpload();
         try {
-            final List<FileItem> fileItems = upload.parseRequest(req);
-            final List<Callable<Void>> tasks = new ArrayList<>();
-            fileItems.stream()
-                    .filter(file -> !Strings.isNullOrEmpty(file.getName()))
-                    .forEach(file -> {
-                        final Callable<Void> task = () -> {
-                            try (InputStream is = file.getInputStream()) {
-                                userServiceXml.saveUsersFromXmlToBD(is);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                            return null;
-                        };
-                        tasks.add(task);
-                    });
-
-            executor.invokeAll(tasks);
-        } catch (InterruptedException | FileUploadException e) {
+            final FileItemIterator itemIterator = upload.getItemIterator(req);
+            while (itemIterator.hasNext()) { //expect that it's only one file
+                userServiceXml.saveUsersFromXmlToBD(itemIterator.next().openStream());
+            }
+        } catch (FileUploadException e) {
             throw new RuntimeException(e);
         }
 

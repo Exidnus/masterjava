@@ -1,6 +1,7 @@
 package ru.javaops.masterjava.service;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
 import ru.javaops.masterjava.da.UserDa;
 import ru.javaops.masterjava.da.model.UserDaDto;
@@ -13,13 +14,20 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Varygin DV {@literal <OUT-Varygin-DV@mail.ca.sbrf.ru>}
  */
 class UserServiceXmlImpl implements UserServiceXml {
 
+    private static final int NUMBER_THREADS = 4;
+    private static final int SIZE_SET_FOR_SAVE = 100;
+
     private UserDa userDa = UserDa.getUserDa();
+
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUMBER_THREADS);
 
     @Override
     public void saveUsersFromXmlToBD(final InputStream is) {
@@ -34,14 +42,15 @@ class UserServiceXmlImpl implements UserServiceXml {
                 final UserDaDto forSaveToDB = new UserDaDto(fullName, email, "stubForCity");
                 users.add(forSaveToDB);
 
-                if (users.size() == 100) {
-                    userDa.saveUsers(users);
+                if (users.size() == SIZE_SET_FOR_SAVE) {
+                    final Set<UserDaDto> forSave = ImmutableSet.copyOf(users);
                     users.clear();
+                    executor.submit(() -> userDa.saveUsers(forSave));
                 }
             }
 
             if (!users.isEmpty()) {
-                userDa.saveUsers(users);
+                executor.submit(() -> userDa.saveUsers(users));
             }
 
         } catch (XMLStreamException e) {

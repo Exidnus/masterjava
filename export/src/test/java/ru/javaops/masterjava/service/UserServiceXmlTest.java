@@ -21,8 +21,6 @@ import java.util.Collection;
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceXmlTest {
 
-    private static final String PROJECT_NAME = "topjava";
-
     @Captor
     private ArgumentCaptor<Collection<UserDaDto>> listUsersDaCaptor;
     private final UserDa userDa = Mockito.mock(UserDa.class);
