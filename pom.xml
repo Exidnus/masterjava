@@ -4,7 +4,7 @@
 
     <groupId>ru.javaops</groupId>
     <artifactId>masterjava</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <version>1.0-SNAPSHOT</version>
 
@@ -13,7 +13,12 @@
 
     <modules>
         <module>export</module>
+        <module>common</module>
+<!--
         <module>web</module>
         <module>mail-service</module>
+        <module>mail-api</module>
+        <module>test</module>
+-->
     </modules>
 </project>
