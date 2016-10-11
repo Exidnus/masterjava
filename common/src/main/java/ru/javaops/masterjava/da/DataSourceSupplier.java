@@ -20,7 +20,7 @@ class DataSourceSupplier {
         static {
             dataSource = new DriverManagerDataSource();
             dataSource.setDriverClassName("org.postgresql.Driver");
-            dataSource.setUrl("jdbc:postgresql://localhost:5432/masterjava");
+            dataSource.setUrl("jdbc:postgresql://localhost:5500/masterjava");
             dataSource.setUsername("user");
             dataSource.setPassword("password");
         }
@@ -33,7 +33,7 @@ class DataSourceSupplier {
     static DataSource getJndiDataSource() {
         DataSource dataSource;
         try {
-            dataSource = new Jndi().lookupDataSource("db/masterjava"); //TODO
+            dataSource = new Jndi().lookupDataSource("jdbc/masterjava");
         } catch (NamingException e) {
             throw new RuntimeException("Can't find DataSource through JNDI", e);
         }

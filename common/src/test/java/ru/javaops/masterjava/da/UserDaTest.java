@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class UserDaTest {
 
-    private final UserDa userDa = UserDa.getUserDa();
+    private final UserDa userDa = UserDa.getUserDaWithHardcodedDataSource();
     private final JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSourceSupplier.getPostgresDataSource());
 
     @Test

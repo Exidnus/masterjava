@@ -11,7 +11,7 @@ import java.util.List;
  */
 class UserServiceImpl implements UserService {
 
-    private final UserDa userDa = UserDa.getUserDa();
+    private final UserDa userDa = UserDa.getUserDaWithHardcodedDataSource();
 
     @Override
     public List<UserDaDto> getAllSorted() {

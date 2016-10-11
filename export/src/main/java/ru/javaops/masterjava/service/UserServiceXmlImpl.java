@@ -1,17 +1,13 @@
 package ru.javaops.masterjava.service;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang3.StringUtils;
 import ru.javaops.masterjava.da.UserDa;
 import ru.javaops.masterjava.da.model.UserDaDto;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +21,7 @@ class UserServiceXmlImpl implements UserServiceXml {
     private static final int NUMBER_THREADS = 4;
     private static final int SIZE_SET_FOR_SAVE = 100;
 
-    private UserDa userDa = UserDa.getUserDa();
+    private UserDa userDa = UserDa.getUserDaWithDataSourceFromJndi();
 
     private final ExecutorService executor = Executors.newFixedThreadPool(NUMBER_THREADS);
 
