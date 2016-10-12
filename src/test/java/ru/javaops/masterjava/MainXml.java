@@ -48,7 +48,7 @@ public class MainXml {
         MainXml main = new MainXml();
         String projectName = args[0];
 
-        Set<User> users = main.parceByJaxb(projectName, payloadUrl);
+        Set<User> users = main.parseByJaxb(projectName, payloadUrl);
         String out = outHtml(users, projectName, Paths.get("out/usersJaxb.html"));
         System.out.println(out);
 
@@ -119,7 +119,7 @@ public class MainXml {
         }
     }
 
-    private Set<User> parceByJaxb(String projectName, URL payloadUrl) throws Exception {
+    private Set<User> parseByJaxb(String projectName, URL payloadUrl) throws Exception {
         JaxbParser parser = new JaxbParser(ObjectFactory.class);
         parser.setSchema(Schemas.ofClasspath("payload.xsd"));
         try (InputStream is = payloadUrl.openStream()) {
