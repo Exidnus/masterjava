@@ -30,7 +30,7 @@ class UserDaJdbcTemplate implements UserDa {
     public void saveUsers(Collection<UserDaDto> users) {
         final Function<UserDaDto, MapSqlParameterSource> userToMapSqlParameters = u -> new MapSqlParameterSource()
                 .addValue("id", u.getId())
-                .addValue("fullName", u.getFullName())
+                .addValue("full_name", u.getFullName())
                 .addValue("email", u.getEmail())
                 .addValue("city", u.getCity());
 

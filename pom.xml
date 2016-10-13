@@ -12,8 +12,11 @@
     <url>https://github.com/JavaOPs/masterjava</url>
 
     <modules>
+        <module>common</module>
+        <module>mail-api</module>
         <module>export</module>
         <module>web</module>
         <module>mail-service</module>
+        <module>test</module>
     </modules>
 </project>

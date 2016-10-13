@@ -21,7 +21,7 @@ class UserServiceXmlImpl implements UserServiceXml {
     private static final int NUMBER_THREADS = 4;
     private static final int SIZE_SET_FOR_SAVE = 100;
 
-    private UserDa userDa = UserDa.getUserDaWithDataSourceFromJndi();
+    private UserDa userDa = UserDa.getUserDaWithHardcodedDataSource();
 
     private final ExecutorService executor = Executors.newFixedThreadPool(NUMBER_THREADS);
 
