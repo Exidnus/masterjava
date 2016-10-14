@@ -12,13 +12,14 @@
     <url>https://github.com/JavaOPs/masterjava</url>
 
     <modules>
-        <module>export</module>
         <module>common</module>
         <module>test</module>
-<!--
-        <module>web</module>
-        <module>mail-service</module>
-        <module>mail-api</module>
--->
+
+        <module>services/mail-service</module>
+        <module>services/mail-api</module>
+
+        <module>web/common-web</module>
+        <module>web/export</module>
+        <module>web/web</module>
     </modules>
 </project>
