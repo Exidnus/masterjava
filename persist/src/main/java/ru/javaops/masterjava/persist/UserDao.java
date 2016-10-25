@@ -1,5 +1,7 @@
 package ru.javaops.masterjava.persist;
 
+import ru.javaops.masterjava.model.User;
+
 import java.util.Collection;
 import java.util.List;
 

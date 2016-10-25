@@ -3,10 +3,14 @@ package ru.javaops.masterjava.model;
 import java.util.Objects;
 
 public class User {
-    private final Integer id;
-    private final String fullName;
-    private final String email;
-    private final UserFlag flag;
+    private Integer id;
+    private String fullName;
+    private String email;
+    private UserFlag flag;
+
+    public User() {
+
+    }
 
     public User(String fullName, String email, UserFlag flag) {
         this(null, fullName, email, flag);

@@ -3,6 +3,8 @@ package ru.javaops.masterjava.persist;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
+import ru.javaops.masterjava.model.User;
+import ru.javaops.masterjava.model.UserFlag;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,10 +23,10 @@ public class UserDaoTest {
     @Test
     public void shouldSave() throws Exception {
         final ImmutableSet<User> users = ImmutableSet.of(
-                new User("Vasiliy", "vas@mail.ru"),
-                new User("Semen", "sem@mail.ru"),
-                new User("Dmitriy", "dm@mail.ru"),
-                new User("Peter", "peter@mail.ru")
+                new User("Vasiliy", "vas@mail.ru", UserFlag.active),
+                new User("Semen", "sem@mail.ru", UserFlag.deleted),
+                new User("Dmitriy", "dm@mail.ru", UserFlag.active),
+                new User("Peter", "peter@mail.ru", UserFlag.superuser)
         );
 
         final int previous = countAllInDB();
