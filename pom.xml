@@ -24,5 +24,7 @@
         <module>web/common-web</module>
         <module>web/export</module>
         <module>web/web</module>
+
+        <module>persist</module>
     </modules>
 </project>
