@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 import j2html.tags.ContainerTag;
 import one.util.streamex.StreamEx;
-import org.apache.commons.lang3.StringUtils;
 import ru.javaops.masterjava.xml.schema.ObjectFactory;
 import ru.javaops.masterjava.xml.schema.Payload;
 import ru.javaops.masterjava.xml.schema.Project;
@@ -22,12 +21,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.nullToEmpty;
 import static j2html.TagCreator.*;
 
 /**
@@ -101,18 +98,11 @@ public class MainXml {
             // Users loop
             while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
                 String groupRefs = processor.getAttribute("groupRefs");
-
-//   http://stackoverflow.com/questions/8708542/something-like-contains-any-for-java-set
-                if (StringUtils.isEmpty(groupRefs)) continue;
-
-                for (String ref : Splitter.on(' ').split(groupRefs)) {
-                    if (groupNames.contains(ref)) {
-                        User user = new User();
-                        user.setEmail(processor.getAttribute("email"));
-                        user.setValue(processor.getReader().getElementText());
-                        users.add(user);
-                        break;
-                    }
+                if (!Collections.disjoint(groupNames, Splitter.on(' ').splitToList(nullToEmpty(groupRefs)))) {
+                    User user = new User();
+                    user.setEmail(processor.getAttribute("email"));
+                    user.setValue(processor.getReader().getElementText());
+                    users.add(user);
                 }
             }
             return users;
@@ -131,9 +121,7 @@ public class MainXml {
 
             Set<Project.Group> groups = new HashSet<>(project.getGroup());  // identity compare
             return StreamEx.of(payload.getUsers().getUser())
-                    .filter(u -> StreamEx.of(u.getGroupRefs())
-                            .findAny(groups::contains)
-                            .isPresent())
+                    .filter(u -> !Collections.disjoint(groups, u.getGroupRefs()))
                     .collect(Collectors.toCollection(() -> new TreeSet<>(USER_COMPARATOR)));
         }
     }
