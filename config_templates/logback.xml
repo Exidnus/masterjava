@@ -7,7 +7,7 @@
 
     <property name="LOG_DIR" value="/apps/masterjava/logs/"/>
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/${project.build.finalName}.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <charset>UTF-8</charset>
@@ -32,9 +32,8 @@
     </appender>
 
     <logger name="ru.javaops.masterjava" level="info"/>
-    <logger name="org.thymeleaf" level="warning"/>
 
-    <root level="warning">
+    <root level="warn">
         <appender-ref ref="file"/>
         <appender-ref ref="console"/>
     </root>
