@@ -50,4 +50,8 @@ public class DBIProvider {
     public static DBI getDBI() {
         return DBIHolder.jDBI;
     }
+
+    public static <T extends AbstractDao> T getDao(Class<T> daoClass) {
+        return DBIHolder.jDBI.onDemand(daoClass);
+    }
 }

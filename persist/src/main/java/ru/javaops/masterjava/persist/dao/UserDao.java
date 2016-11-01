@@ -1,9 +1,11 @@
 package ru.javaops.masterjava.persist.dao;
 
 import com.bertoncelj.jdbi.entitymapper.EntityMapperFactory;
+import org.skife.jdbi.v2.PreparedBatch;
 import org.skife.jdbi.v2.sqlobject.*;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
 import ru.javaops.masterjava.persist.AbstractDao;
+import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.model.User;
 
 import java.util.List;
@@ -41,4 +43,24 @@ public abstract class UserDao implements AbstractDao {
     @SqlUpdate("TRUNCATE users")
     @Override
     public abstract void clean();
+
+    @SqlQuery("SELECT nextval('user_seq')")
+    abstract int getNextVal();
+
+    @Transaction
+    public int getSeqAndSkip(int step) {
+        int id = getNextVal();
+        DBIProvider.getDBI().useHandle(h -> h.execute("ALTER SEQUENCE user_seq RESTART WITH " + (id + step)));
+        return id;
+    }
+
+    public void saveChunk(List<User> users) {
+        DBIProvider.getDBI().inTransaction((handle, status) -> {
+            PreparedBatch preparedBatch =
+                    handle.prepareBatch("INSERT INTO users (id, full_name, email, flag) VALUES (:1, :2, :3, CAST(:4 AS user_flag))");
+            users.forEach(u -> preparedBatch.add(u.getId(), u.getFullName(), u.getEmail(), u.getFlag()));
+            preparedBatch.execute();
+            return null;
+        });
+    }
 }

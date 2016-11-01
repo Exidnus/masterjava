@@ -50,4 +50,19 @@ public class UserDaoTest extends AbstractDaoTest<UserDao> {
         List<User> users = dao.getWithLimit(5);
         Assert.assertEquals(FIST5_USERS, users);
     }
+
+    @Test
+    public void getSeqAndSkip() throws Exception {
+        int seq1 = dao.getSeqAndSkip(5);
+        int seq2 = dao.getSeqAndSkip(1);
+        Assert.assertEquals(5, seq2 - seq1);
+    }
+
+    @Test
+    public void saveChunk() throws Exception {
+        dao.clean();
+        dao.saveChunk(FIST5_USERS);
+        List<User> users = dao.getWithLimit(100);
+        Assert.assertEquals(FIST5_USERS, users);
+    }
 }

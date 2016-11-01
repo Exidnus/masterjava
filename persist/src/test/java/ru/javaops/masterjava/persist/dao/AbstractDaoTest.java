@@ -17,7 +17,7 @@ public abstract class AbstractDaoTest<DAO extends AbstractDao> {
     protected DAO dao;
 
     protected AbstractDaoTest(Class<DAO> daoClass) {
-        this.dao = DBIProvider.getDBI().onDemand(daoClass);
+        this.dao = DBIProvider.getDao(daoClass);
     }
 
     @Before
