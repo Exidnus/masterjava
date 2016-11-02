@@ -1,9 +1,8 @@
 package ru.javaops.masterjava.persist.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.model.User;
 import ru.javaops.masterjava.persist.model.UserFlag;
@@ -15,8 +14,8 @@ import java.util.List;
  * gkislin
  * 27.10.2016
  */
+@Slf4j
 public class UserDaoTest extends AbstractDaoTest<UserDao> {
-    private static final Logger LOG = LoggerFactory.getLogger(UserDaoTest.class);
 
     private static User ADMIN = new User("Admin", "admin@javaops.ru", UserFlag.superuser);
     private static User DELETED = new User("Deleted", "deleted@yandex.ru", UserFlag.deleted);
@@ -42,7 +41,7 @@ public class UserDaoTest extends AbstractDaoTest<UserDao> {
             dao.insert(USER3);
             return null;
         });
-        LOG.info("-----------   End setUp ---------------\n");
+        log.info("-----------   End setUp ---------------\n");
     }
 
     @Test

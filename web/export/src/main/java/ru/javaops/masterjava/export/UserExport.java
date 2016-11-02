@@ -1,7 +1,8 @@
 package ru.javaops.masterjava.export;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.UserDao;
 import ru.javaops.masterjava.persist.model.User;
@@ -22,8 +23,8 @@ import java.util.concurrent.Future;
  * gkislin
  * 14.10.2016
  */
+@Slf4j
 public class UserExport {
-    private static final Logger LOG = LoggerFactory.getLogger(UserExport.class);
 
     private static final int NUMBER_THREADS = 4;
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
@@ -39,10 +40,12 @@ public class UserExport {
         }
     }
 
+    @Value
+    @EqualsAndHashCode(callSuper = true)
     public static class ChunkResult extends Result {
-        public final String startEmail;
-        public final String endEmail;
-        public final int size;
+        String startEmail;
+        String endEmail;
+        int size;
 
         public ChunkResult(String startEmail, String endEmail, int size) {
             this.startEmail = startEmail;
@@ -83,7 +86,7 @@ public class UserExport {
 
     public GroupResult process(final InputStream is, int chunkSize) throws XMLStreamException {
         final StaxStreamProcessor processor = new StaxStreamProcessor(is);
-        LOG.info("Start proseccing with chunkSize=" + chunkSize);
+        log.info("Start proseccing with chunkSize=" + chunkSize);
 
         return new Callable<GroupResult>() {
             class ChunkFuture {
@@ -137,7 +140,7 @@ public class UserExport {
                         executorService.submit(() -> {
                             userDao.saveChunk(chunk);
                         }));
-                LOG.info("Submit " + chunkFuture.chunkResult);
+                log.info("Submit " + chunkFuture.chunkResult);
                 return chunkFuture;
             }
         }.call();

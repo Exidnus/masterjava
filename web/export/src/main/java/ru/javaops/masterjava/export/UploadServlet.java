@@ -2,12 +2,11 @@ package ru.javaops.masterjava.export;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import ru.javaops.masterjava.common.web.ThymeleafUtil;
@@ -21,9 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @WebServlet("/")
+@Slf4j
 public class UploadServlet extends HttpServlet {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UploadServlet.class);
     private final UserExport userExport = new UserExport();
 
     @Override
@@ -67,12 +66,12 @@ public class UploadServlet extends HttpServlet {
                         UserExport.GroupResult result = userExport.process(is, chunkSize);
                         message = result.toString();
                     }
-                    LOG.info("XML successfully uploaded");
+                    log.info("XML successfully uploaded");
                     break;
                 }
             }
         } catch (Exception e) {
-            LOG.info(e.getMessage());
+            log.info(e.getMessage());
         }
         outExport(req, resp, message, chunkSize);
     }
