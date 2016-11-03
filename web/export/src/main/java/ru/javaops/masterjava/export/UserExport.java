@@ -87,7 +87,7 @@ public class UserExport {
                 private ChunkResult chunkResult;
                 private Future future;
 
-                public ChunkFuture(List<User> users, Future future) {
+                ChunkFuture(List<User> users, Future future) {
                     int size = users.size();
                     this.chunkResult = new ChunkResult(users.get(0).getEmail(), users.get(size - 1).getEmail(), size);
                     this.future = future;
