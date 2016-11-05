@@ -1,5 +1,6 @@
 package ru.javaops.masterjava.persist.model;
 
+import com.bertoncelj.jdbi.entitymapper.Column;
 import lombok.*;
 
 /**
@@ -11,6 +12,7 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 public class City extends BaseEntity {
 
+    @Column("id_str")
     @NonNull private String idStr;
     @NonNull private String name;
 
