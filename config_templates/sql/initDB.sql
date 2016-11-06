@@ -43,18 +43,18 @@ CREATE TABLE groups_users (
 CREATE TABLE groups (
   id         INTEGER PRIMARY KEY DEFAULT nextval('group_seq'),
   name       TEXT    NOT NULL,
-  type       group_type NOT NULL,
-  project_id INTEGER NOT NULL,
-  FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
+  type       group_type NOT NULL--,
+  --project_id INTEGER NOT NULL,
+  --FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
 );
 
 CREATE TABLE users (
   id        INTEGER PRIMARY KEY DEFAULT nextval('user_seq'),
   full_name TEXT      NOT NULL,
   email     TEXT      NOT NULL,
-  flag      user_flag NOT NULL,
+  flag      user_flag NOT NULL--,
   --city_id   INTEGER NOT NULL,
-  group_id  INTEGER NOT NULL--,
+  --group_id  INTEGER NOT NULL--,
   --FOREIGN KEY (city_id) REFERENCES cities (id) ON DELETE CASCADE
 );
 

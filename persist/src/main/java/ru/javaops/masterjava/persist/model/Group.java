@@ -13,4 +13,9 @@ public class Group extends BaseEntity {
 
     @NonNull private String name;
     @NonNull private GroupType type;
+
+    public Group(Integer id, String name, GroupType type) {
+        this(name, type);
+        this.id = id;
+    }
 }
