@@ -47,12 +47,6 @@ public class UserExport {
         String endEmail;
         int size;
 
-        public ChunkResult(String startEmail, String endEmail, int size) {
-            this.startEmail = startEmail;
-            this.endEmail = endEmail;
-            this.size = size;
-        }
-
         public void setFail(String message) {
             result = message;
         }
