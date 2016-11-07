@@ -1,9 +1,7 @@
 package ru.javaops.masterjava.persist.dao;
 
 import com.bertoncelj.jdbi.entitymapper.EntityMapperFactory;
-import org.skife.jdbi.v2.sqlobject.BindBean;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.*;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
 import ru.javaops.masterjava.persist.AbstractDao;
 import ru.javaops.masterjava.persist.model.City;
@@ -28,5 +26,10 @@ public abstract class CityDao implements AbstractDao {
     public abstract Set<String> getAllIdStr();
 
     @SqlUpdate("INSERT INTO cities (id_str, name) VALUES (:idStr, :name)")
+    @GetGeneratedKeys
     public abstract void insertGeneratedId(@BindBean City city);
+
+    @SqlBatch("INSERT INTO cities (id_str, name) VALUES (:idStr, :name)")
+    @GetGeneratedKeys
+    public abstract void saveListWithoutSkippingSeq(@BindBean List<City> cities);
 }

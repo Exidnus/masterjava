@@ -52,8 +52,8 @@ CREATE TABLE users (
   id        INTEGER PRIMARY KEY DEFAULT nextval('user_seq'),
   full_name TEXT      NOT NULL,
   email     TEXT      NOT NULL,
-  flag      user_flag NOT NULL--,
-  --city_id   INTEGER NOT NULL,
+  flag      user_flag NOT NULL,
+  city_id   INTEGER NOT NULL--,
   --group_id  INTEGER NOT NULL--,
   --FOREIGN KEY (city_id) REFERENCES cities (id) ON DELETE CASCADE
 );

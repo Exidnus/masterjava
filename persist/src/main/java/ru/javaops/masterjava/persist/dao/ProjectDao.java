@@ -2,6 +2,7 @@ package ru.javaops.masterjava.persist.dao;
 
 import com.bertoncelj.jdbi.entitymapper.EntityMapperFactory;
 import org.skife.jdbi.v2.sqlobject.BindBean;
+import org.skife.jdbi.v2.sqlobject.GetGeneratedKeys;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapperFactory;
@@ -21,6 +22,7 @@ public abstract class ProjectDao implements AbstractDao {
     public abstract void clean();
 
     @SqlUpdate("INSERT INTO projects (name, description) VALUES (:name, :description)")
+    @GetGeneratedKeys
     public abstract void insertGeneratedId(@BindBean Project project);
 
     @SqlQuery("SELECT * FROM projects")

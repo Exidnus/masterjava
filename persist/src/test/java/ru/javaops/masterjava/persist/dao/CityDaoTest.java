@@ -3,6 +3,7 @@ package ru.javaops.masterjava.persist.dao;
 import org.junit.Test;
 import ru.javaops.masterjava.persist.model.City;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import static org.junit.Assert.*;
 public class CityDaoTest extends AbstractDaoTest<CityDao> {
 
     private static final City MOSCOW = new City("msk", "Москва");
+    private static final City LONDON = new City("lnd", "Лондон");
     private static final City SPB = new City("spb", "Санкт-Петербург");
     private static final City KIEV = new City("kiv", "Киев");
 
@@ -54,5 +56,13 @@ public class CityDaoTest extends AbstractDaoTest<CityDao> {
         System.out.println(count);
         System.out.println(all);
         assertTrue(count == 2);
+    }
+
+    @Test
+    public void shouldSaveListCities() throws Exception {
+        dao.saveListWithoutSkippingSeq(Arrays.asList(MOSCOW, LONDON));
+        final Set<City> all = dao.getAll();
+        assertEquals(all.size(), 4);
+        System.out.println(all);
     }
 }
