@@ -17,12 +17,12 @@ import java.util.List;
 @Slf4j
 public class UserDaoTest extends AbstractDaoTest<UserDao> {
 
-    private static User ADMIN = new User("Admin", "admin@javaops.ru", UserFlag.superuser);
-    private static User DELETED = new User("Deleted", "deleted@yandex.ru", UserFlag.deleted);
-    private static User FULL_NAME = new User("Full Name", "gmail@gmail.com", UserFlag.active);
-    private static User USER1 = new User("User1", "user1@gmail.com", UserFlag.active);
-    private static User USER2 = new User("User2", "user2@yandex.ru", UserFlag.active);
-    private static User USER3 = new User("User3", "user3@yandex.ru", UserFlag.active);
+    private static User ADMIN = new User("Admin", "admin@javaops.ru", UserFlag.superuser, 1);
+    private static User DELETED = new User("Deleted", "deleted@yandex.ru", UserFlag.deleted, 1);
+    private static User FULL_NAME = new User("Full Name", "gmail@gmail.com", UserFlag.active, 1);
+    private static User USER1 = new User("User1", "user1@gmail.com", UserFlag.active, 1);
+    private static User USER2 = new User("User2", "user2@yandex.ru", UserFlag.active, 1);
+    private static User USER3 = new User("User3", "user3@yandex.ru", UserFlag.active, 1);
     private static List<User> FIST5_USERS = Arrays.asList(ADMIN, DELETED, FULL_NAME, USER1, USER2);
 
     public UserDaoTest() {

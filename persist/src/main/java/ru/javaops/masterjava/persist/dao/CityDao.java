@@ -27,9 +27,9 @@ public abstract class CityDao implements AbstractDao {
 
     @SqlUpdate("INSERT INTO cities (id_str, name) VALUES (:idStr, :name)")
     @GetGeneratedKeys
-    public abstract void insertGeneratedId(@BindBean City city);
+    public abstract int insertGeneratedId(@BindBean City city);
 
     @SqlBatch("INSERT INTO cities (id_str, name) VALUES (:idStr, :name)")
     @GetGeneratedKeys
-    public abstract void saveListWithoutSkippingSeq(@BindBean List<City> cities);
+    public abstract int[] saveListWithoutSkippingSeq(@BindBean List<City> cities);
 }

@@ -29,11 +29,13 @@ public abstract class UserDao implements AbstractDao {
         return user;
     }
 
-    @SqlUpdate("INSERT INTO users (full_name, email, flag) VALUES (:fullName, :email, CAST(:flag AS user_flag)) ")
+    @SqlUpdate("INSERT INTO users (full_name, email, flag, city_id) " +
+            "VALUES (:fullName, :email, CAST(:flag AS user_flag), :cityId)")
     @GetGeneratedKeys
     abstract int insertGeneratedId(@BindBean User user);
 
-    @SqlUpdate("INSERT INTO users (id, full_name, email, flag) VALUES (:id, :fullName, :email, CAST(:flag AS user_flag)) ")
+    @SqlUpdate("INSERT INTO users (id, full_name, email, flag, city_id) " +
+            "VALUES (:id, :fullName, :email, CAST(:flag AS user_flag), :cityId) ")
     abstract void insertWitId(@BindBean User user);
 
     @SqlQuery("SELECT * FROM users ORDER BY full_name, email LIMIT :it")
@@ -57,8 +59,9 @@ public abstract class UserDao implements AbstractDao {
     public void saveChunk(List<User> users) {
         DBIProvider.getDBI().inTransaction((handle, status) -> {
             PreparedBatch preparedBatch =
-                    handle.prepareBatch("INSERT INTO users (id, full_name, email, flag) VALUES (:1, :2, :3, CAST(:4 AS user_flag))");
-            users.forEach(u -> preparedBatch.add(u.getId(), u.getFullName(), u.getEmail(), u.getFlag()));
+                    handle.prepareBatch("INSERT INTO users (id, full_name, email, flag, city_id) " +
+                            "VALUES (:1, :2, :3, CAST(:4 AS user_flag), :5)");
+            users.forEach(u -> preparedBatch.add(u.getId(), u.getFullName(), u.getEmail(), u.getFlag(), u.getCityId()));
             preparedBatch.execute();
             return null;
         });
