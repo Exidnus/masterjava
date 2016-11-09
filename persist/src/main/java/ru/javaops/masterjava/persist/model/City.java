@@ -11,9 +11,8 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class City extends BaseEntity {
-
-    @Column("id_str")
-    @NonNull private String idStr;
+    
+    @NonNull @Column("id_str") private String idStr;
     @NonNull private String name;
 
     public City(Integer id, String idStr, String name) {

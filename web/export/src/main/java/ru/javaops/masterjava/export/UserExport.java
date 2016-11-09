@@ -31,10 +31,8 @@ import java.util.stream.Collectors;
  * 14.10.2016
  */
 @Slf4j
-public class UserExport {
+public class UserExport extends BaseExport {
 
-    private static final int NUMBER_THREADS = 4;
-    private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
     private UserDao userDao = DBIProvider.getDao(UserDao.class);
     private final CityDao cityDao = DBIProvider.getDao(CityDao.class);
 
@@ -91,9 +89,9 @@ public class UserExport {
         log.info("Start proseccing with chunkSize=" + chunkSize);
 
 
-        final Map<String, Integer> IdStrsToIdsCities = cityDao.getAll()
-                .stream()
-                .collect(Collectors.toMap(City::getIdStr, City::getId));
+//        final Map<String, Integer> IdStrsToIdsCities = cityDao.getAll()
+//                .stream()
+//                .collect(Collectors.toMap(City::getIdStr, City::getId));
 
         return new Callable<GroupResult>() {
             class ChunkFuture {

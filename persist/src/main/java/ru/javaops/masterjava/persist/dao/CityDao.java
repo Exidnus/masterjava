@@ -15,7 +15,7 @@ import java.util.Set;
 @RegisterMapperFactory(EntityMapperFactory.class)
 public abstract class CityDao implements AbstractDao {
 
-    @SqlUpdate("TRUNCATE cities")
+    @SqlUpdate("TRUNCATE cities CASCADE")
     @Override
     public abstract void clean();
 
@@ -25,11 +25,13 @@ public abstract class CityDao implements AbstractDao {
     @SqlQuery("SELECT cities.id_str FROM cities")
     public abstract Set<String> getAllIdStr();
 
+    @SqlUpdate("INSERT INTO cities(id, id_str, name) VALUES (:id, :idStr, :name)")
+    public abstract void insertWithId(@BindBean City city);
+
     @SqlUpdate("INSERT INTO cities (id_str, name) VALUES (:idStr, :name)")
     @GetGeneratedKeys
     public abstract int insertGeneratedId(@BindBean City city);
 
     @SqlBatch("INSERT INTO cities (id_str, name) VALUES (:idStr, :name)")
-    @GetGeneratedKeys
-    public abstract int[] saveListWithoutSkippingSeq(@BindBean List<City> cities);
+    public abstract void saveListWithoutSkippingSeq(@BindBean List<City> cities);
 }

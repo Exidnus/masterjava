@@ -18,12 +18,15 @@ import java.util.List;
 public abstract class ProjectDao implements AbstractDao {
 
     @Override
-    @SqlUpdate("TRUNCATE projects")
+    @SqlUpdate("TRUNCATE projects CASCADE")
     public abstract void clean();
+
+    @SqlUpdate("INSERT INTO projects (id, name, description) VALUES (:id, :name, :description)")
+    public abstract void insertWithId(@BindBean Project project);
 
     @SqlUpdate("INSERT INTO projects (name, description) VALUES (:name, :description)")
     @GetGeneratedKeys
-    public abstract void insertGeneratedId(@BindBean Project project);
+    public abstract int insertGeneratedId(@BindBean Project project);
 
     @SqlQuery("SELECT * FROM projects")
     public abstract List<Project> getAll();

@@ -20,10 +20,8 @@ import java.util.concurrent.Future;
 /**
  * Created by dmitriy_varygin on 07.11.16.
  */
-public class CityExport {
+public class CityExport extends BaseExport {
 
-    private static final int NUMBER_THREADS = 4;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
     private final CityDao cityDao = DBIProvider.getDao(CityDao.class);
 
     public void process(final InputStream is, final int size) throws XMLStreamException {
