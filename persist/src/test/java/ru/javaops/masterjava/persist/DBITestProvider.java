@@ -16,7 +16,6 @@ public class DBITestProvider {
     }
 
     public static void initDBI(String dbUrl, String dbUser, String dbPassword) {
-        DBIProvider.setProfile("test");
         DBIProvider.init(() -> {
             try {
                 Class.forName("org.postgresql.Driver");

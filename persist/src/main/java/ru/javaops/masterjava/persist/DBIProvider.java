@@ -14,35 +14,32 @@ import javax.sql.DataSource;
  */
 @Slf4j
 public class DBIProvider {
-    private static String profile = "tomcat_pool";
-
-    public static void setProfile(String profile) {
-        DBIProvider.profile = profile;
-    }
+    private volatile static ConnectionFactory connectionFactory = null;
 
     private static class DBIHolder {
-        static DBI jDBI = null;
+        final static DBI jDBI;
 
         static {
-            if (profile.equals("tomcat_pool")) {
+            final DBI dbi;
+            if (connectionFactory != null) {
+                log.info("Init jDBI with  connectionFactory");
+                dbi = new DBI(connectionFactory);
+            } else {
                 try {
+                    log.info("Init jDBI with  JNDI");
                     InitialContext ctx = new InitialContext();
-                    init(new DBI((DataSource) ctx.lookup("java:/comp/env/jdbc/masterjava")));
+                    dbi = new DBI((DataSource) ctx.lookup("java:/comp/env/jdbc/masterjava"));
                 } catch (Exception ex) {
                     throw new IllegalStateException("PostgreSQL initialization failed", ex);
                 }
             }
-        }
-
-        static void init(DBI dbi) {
-            log.info("Init jDBI with profile: " + profile);
-            DBIHolder.jDBI = dbi;
-            DBIHolder.jDBI.setSQLLog(new SLF4JLog());
+            jDBI = dbi;
+            jDBI.setSQLLog(new SLF4JLog());
         }
     }
 
     public static void init(ConnectionFactory connectionFactory) {
-        DBIHolder.init(new DBI(connectionFactory));
+        DBIProvider.connectionFactory = connectionFactory;
     }
 
     public static DBI getDBI() {
