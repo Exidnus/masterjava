@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS groups;
 DROP TYPE IF EXISTS group_type;
 DROP TABLE IF EXISTS projects;
 
-DROP TABLE IF EXISTS groups_users;
+DROP TABLE IF EXISTS users_groups;
 
 DROP SEQUENCE IF EXISTS common_seq;
 
@@ -29,7 +29,7 @@ CREATE TABLE projects (
   description TEXT
 );
 
-CREATE TABLE groups_users (
+CREATE TABLE users_groups (
   user_id  INTEGER NOT NULL,
   group_id INTEGER NOT NULL
 );

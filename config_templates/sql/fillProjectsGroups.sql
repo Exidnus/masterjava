@@ -1,9 +1,3 @@
-INSERT INTO cities (id_str, name) VALUES
-  ('spb', 'Санкт-Петербург'),
-  ('mov', 'Москва'),
-  ('kiv', 'Киев'),
-  ('mnsk', 'Минск');
-
 INSERT INTO projects VALUES
   (1, 'topjava', 'Topjava'),
   (2, 'masterjava', 'MasterJava');

@@ -1,9 +1,11 @@
 package ru.javaops.masterjava.persist.dao;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.model.Group;
 import ru.javaops.masterjava.persist.model.Project;
+import ru.javaops.masterjava.persist.model.UserGroup;
 
 import java.util.List;
 
@@ -41,9 +43,18 @@ public class GroupDaoTest extends AbstractDaoTest<GroupDao> {
         System.out.println(all.size());
         assertTrue(all.size() == 2);
         final long count = all.stream()
-                .filter(g -> ("topjava06".equals(g.getName()) && FINISHED == g.getType() ||
+                .filter(g -> (("topjava06".equals(g.getName()) && FINISHED == g.getType()) ||
                         ("masterjava01".equals(g.getName()) && CURRENT == g.getType())))
                 .count();
         assertTrue(count == 2);
+    }
+
+    @Test
+    public void shouldSaveUserGroups() {
+        final List<UserGroup> userGroups = ImmutableList.of(
+                new UserGroup(23, 44), new UserGroup(23, 45),
+                new UserGroup(25, 45), new UserGroup(26, 66)
+        );
+        dao.saveUserGroups(userGroups);
     }
 }

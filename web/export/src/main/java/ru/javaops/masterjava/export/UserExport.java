@@ -9,10 +9,7 @@ import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.CityDao;
 import ru.javaops.masterjava.persist.dao.GroupDao;
 import ru.javaops.masterjava.persist.dao.UserDao;
-import ru.javaops.masterjava.persist.model.City;
-import ru.javaops.masterjava.persist.model.Group;
-import ru.javaops.masterjava.persist.model.User;
-import ru.javaops.masterjava.persist.model.UserFlag;
+import ru.javaops.masterjava.persist.model.*;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 
 import javax.xml.stream.XMLStreamException;
@@ -103,6 +100,16 @@ public class UserExport extends BaseExport {
                 }
             }
 
+            private void processGroups(final int userId, final String groupsAsString,
+                                       final Map<String, Integer> groupNamesToIds) {
+                final List<UserGroup> userGroups = Util.getGroupNamesFromString(groupsAsString)
+                        .stream()
+                        .map(groupNamesToIds::get)
+                        .map(groupId -> new UserGroup(userId, groupId))
+                        .collect(Collectors.toList());
+                groupDao.saveUserGroups(userGroups);
+            }
+
             @Override
             public GroupResult call() throws XMLStreamException {
                 GroupResult result = new GroupResult();
@@ -120,6 +127,7 @@ public class UserExport extends BaseExport {
                         .collect(Collectors.toMap(Group::getName, Group::getId));
 
                 while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
+                    processGroups(id, processor.getAttribute("groupRefs"), groupNamesToIds);
                     final String email = processor.getAttribute("email");
                     final UserFlag flag = UserFlag.valueOf(processor.getAttribute("flag"));
                     final String cityIdAsStr = processor.getAttribute("city");
