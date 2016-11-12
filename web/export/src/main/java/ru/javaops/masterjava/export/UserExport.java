@@ -2,9 +2,9 @@ package ru.javaops.masterjava.export;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import ru.javaops.masterjava.export.results.ChunkResult;
+import ru.javaops.masterjava.export.results.GroupResult;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.CityDao;
 import ru.javaops.masterjava.persist.dao.GroupDao;
@@ -14,14 +14,10 @@ import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
@@ -36,56 +32,7 @@ public class UserExport extends BaseExport {
     private final CityDao cityDao = DBIProvider.getDao(CityDao.class);
     private final GroupDao groupDao = DBIProvider.getDao(GroupDao.class);
 
-    public static class Result {
-        private static final String OK = "OK";
-
-        public String result = OK;
-
-        public boolean isOK() {
-            return OK.equals(result);
-        }
-    }
-
-    @Value
-    @EqualsAndHashCode(callSuper = true)
-    public static class ChunkResult extends Result {
-        String startEmail;
-        String endEmail;
-        int size;
-
-        public void setFail(String message) {
-            result = message;
-        }
-
-        @Override
-        public String toString() {
-            return "Chunk (startEmail='" + startEmail + '\'' + ", endEmail='" + endEmail + "', size:'" + size + "):" + result;
-        }
-    }
-
-    public static class GroupResult extends Result {
-        public List<ChunkResult> chunkResults = new ArrayList<>();
-        public int successful;
-        public int failed;
-
-        private void add(ChunkResult chunkResult) {
-            chunkResults.add(chunkResult);
-            if (chunkResult.isOK()) {
-                successful += chunkResult.size;
-            } else {
-                failed += chunkResult.size;
-                result = isOK() ? chunkResult.toString() : "------------------------\n" + chunkResult.toString();
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "Result (successful=" + successful + ", failed=" + failed + "): " + result;
-        }
-    }
-
-    public GroupResult process(final InputStream is, int chunkSize) throws XMLStreamException {
-        final StaxStreamProcessor processor = new StaxStreamProcessor(is);
+    public GroupResult process(final StaxStreamProcessor processor, int chunkSize) throws XMLStreamException {
         log.info("Start proseccing with chunkSize=" + chunkSize);
 
         return new Callable<GroupResult>() {
@@ -100,19 +47,9 @@ public class UserExport extends BaseExport {
                 }
             }
 
-            private void processGroups(final int userId, final String groupsAsString,
-                                       final Map<String, Integer> groupNamesToIds) {
-                final List<UserGroup> userGroups = Util.getGroupNamesFromString(groupsAsString)
-                        .stream()
-                        .map(groupNamesToIds::get)
-                        .map(groupId -> new UserGroup(userId, groupId))
-                        .collect(Collectors.toList());
-                groupDao.saveUserGroups(userGroups);
-            }
-
             @Override
             public GroupResult call() throws XMLStreamException {
-                GroupResult result = new GroupResult();
+                GroupResult result = new GroupResult("Users: ");
                 List<ChunkFuture> chunkFutures = new ArrayList<>();
 
                 List<User> chunk = new ArrayList<>(chunkSize);
@@ -164,6 +101,16 @@ public class UserExport extends BaseExport {
                         }));
                 log.info("Submit " + chunkFuture.chunkResult);
                 return chunkFuture;
+            }
+
+            private void processGroups(final int userId, final String groupsAsString,
+                                       final Map<String, Integer> groupNamesToIds) {
+                final List<UserGroup> userGroups = Util.getGroupNamesFromString(groupsAsString)
+                        .stream()
+                        .map(groupNamesToIds::get)
+                        .map(groupId -> new UserGroup(userId, groupId))
+                        .collect(Collectors.toList());
+                groupDao.saveUserGroups(userGroups);
             }
         }.call();
     }

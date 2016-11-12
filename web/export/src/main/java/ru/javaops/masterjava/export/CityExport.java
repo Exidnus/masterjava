@@ -1,6 +1,7 @@
 package ru.javaops.masterjava.export;
 
 import com.google.common.collect.ImmutableList;
+import ru.javaops.masterjava.export.results.GroupResult;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.CityDao;
 import ru.javaops.masterjava.persist.model.City;
@@ -24,38 +25,36 @@ public class CityExport extends BaseExport {
 
     private final CityDao cityDao = DBIProvider.getDao(CityDao.class);
 
-    public void process(final InputStream is, final int size) throws XMLStreamException {
-        try (final StaxStreamProcessor processor = new StaxStreamProcessor(is)) {
-            final Set<String> idStrsInDb = cityDao.getAllIdStr();
-            final List<City> buffer = new ArrayList<>(size);
-            final List<Future<?>> results = new ArrayList<>();
-            while (processor.doUntil(XMLEvent.START_ELEMENT, "City")) {
-                final String idStr = processor.getAttribute("id");
-                if (!idStrsInDb.contains(idStr)) {
-                    buffer.add(new City(idStr, processor.getReader().getElementText()));
-                }
-
-                if (buffer.size() == size) {
-                    final List<City> forSaveInBd = ImmutableList.copyOf(buffer);
-                    buffer.clear();
-                    final Future<?> result = executorService.submit(() -> cityDao.saveListWithoutSkippingSeq(forSaveInBd));
-                    results.add(result);
-                }
+    public GroupResult process(final StaxStreamProcessor processor, final int size) throws XMLStreamException {
+        final Set<String> idStrsInDb = cityDao.getAllIdStr();
+        final List<City> buffer = new ArrayList<>(size);
+        final List<Future<?>> results = new ArrayList<>();
+        while (processor.doUntil(XMLEvent.START_ELEMENT, "City")) {
+            final String idStr = processor.getAttribute("id");
+            if (!idStrsInDb.contains(idStr)) {
+                buffer.add(new City(idStr, processor.getReader().getElementText()));
             }
 
-            if (!buffer.isEmpty()) {
-                final Future<?> result = executorService.submit(() -> cityDao.saveListWithoutSkippingSeq(buffer));
+            if (buffer.size() == size) {
+                final List<City> forSaveInBd = ImmutableList.copyOf(buffer);
+                buffer.clear();
+                final Future<?> result = executorService.submit(() -> cityDao.saveListWithoutSkippingSeq(forSaveInBd));
                 results.add(result);
-            }
-
-            for (Future<?> result : results) {
-                try {
-                    result.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException();
-                }
             }
         }
 
+        if (!buffer.isEmpty()) {
+            final Future<?> result = executorService.submit(() -> cityDao.saveListWithoutSkippingSeq(buffer));
+            results.add(result);
+        }
+
+        for (Future<?> result : results) {
+            try {
+                result.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException();
+            }
+        }
+        return new GroupResult("Cities: ");
     }
 }

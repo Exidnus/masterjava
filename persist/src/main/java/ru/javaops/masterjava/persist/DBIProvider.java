@@ -7,6 +7,7 @@ import org.skife.jdbi.v2.tweak.ConnectionFactory;
 
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+import java.sql.DriverManager;
 
 /**
  * gkislin
@@ -14,7 +15,15 @@ import javax.sql.DataSource;
  */
 @Slf4j
 public class DBIProvider {
-    private volatile static ConnectionFactory connectionFactory = null;
+    private volatile static ConnectionFactory connectionFactory = () -> {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("PostgreSQL driver not found", e);
+        }
+        return DriverManager.getConnection("jdbc:postgresql://localhost:5432/masterjava",
+                "user", "password");
+    };
 
     private static class DBIHolder {
         final static DBI jDBI;

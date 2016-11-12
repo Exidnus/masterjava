@@ -1,6 +1,7 @@
 package ru.javaops.masterjava.export;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileItemIterator;
@@ -23,7 +24,9 @@ import java.io.InputStream;
 @Slf4j
 public class UploadServlet extends HttpServlet {
 
-    private final UserExport userExport = new UserExport();
+    private final ExportChain exportChain = new ExportChain(
+            ImmutableList.of(new CityExport(), new UserExport())
+    );
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -63,8 +66,7 @@ public class UploadServlet extends HttpServlet {
                     message = "Upload file is not selected";
                 } else {
                     try (InputStream is = item.openStream()) {
-                        UserExport.GroupResult result = userExport.process(is, chunkSize);
-                        message = result.toString();
+                        message = exportChain.process(is, chunkSize);
                     }
                     log.info("XML successfully uploaded");
                     break;
