@@ -7,8 +7,10 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.CityDao;
+import ru.javaops.masterjava.persist.dao.GroupDao;
 import ru.javaops.masterjava.persist.dao.UserDao;
 import ru.javaops.masterjava.persist.model.City;
+import ru.javaops.masterjava.persist.model.Group;
 import ru.javaops.masterjava.persist.model.User;
 import ru.javaops.masterjava.persist.model.UserFlag;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
@@ -35,6 +37,7 @@ public class UserExport extends BaseExport {
 
     private UserDao userDao = DBIProvider.getDao(UserDao.class);
     private final CityDao cityDao = DBIProvider.getDao(CityDao.class);
+    private final GroupDao groupDao = DBIProvider.getDao(GroupDao.class);
 
     public static class Result {
         private static final String OK = "OK";
@@ -88,11 +91,6 @@ public class UserExport extends BaseExport {
         final StaxStreamProcessor processor = new StaxStreamProcessor(is);
         log.info("Start proseccing with chunkSize=" + chunkSize);
 
-
-//        final Map<String, Integer> IdStrsToIdsCities = cityDao.getAll()
-//                .stream()
-//                .collect(Collectors.toMap(City::getIdStr, City::getId));
-
         return new Callable<GroupResult>() {
             class ChunkFuture {
                 private ChunkResult chunkResult;
@@ -113,13 +111,21 @@ public class UserExport extends BaseExport {
                 List<User> chunk = new ArrayList<>(chunkSize);
                 int id = userDao.getSeqAndSkip(chunkSize);
 
+                final Map<String, Integer> idStrsToIdsCities = cityDao.getAll()
+                        .stream()
+                        .collect(Collectors.toMap(City::getIdStr, City::getId));
+
+                final Map<String, Integer> groupNamesToIds = groupDao.getAll()
+                        .stream()
+                        .collect(Collectors.toMap(Group::getName, Group::getId));
+
                 while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
                     final String email = processor.getAttribute("email");
                     final UserFlag flag = UserFlag.valueOf(processor.getAttribute("flag"));
-                    final String fullName = processor.getReader().getElementText();
                     final String cityIdAsStr = processor.getAttribute("city");
+                    final String fullName = processor.getReader().getElementText();
                     Preconditions.checkArgument(!Strings.isNullOrEmpty(cityIdAsStr));
-                    final int cityId = Integer.parseInt(cityIdAsStr);
+                    final int cityId = idStrsToIdsCities.get(cityIdAsStr);
                     final User user = new User(id++, fullName, email, flag, cityId);
                     chunk.add(user);
                     if (chunk.size() == chunkSize) {
