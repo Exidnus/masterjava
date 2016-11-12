@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
  * Created by dmitriy_varygin on 12.11.16.
  */
 @RequiredArgsConstructor
-public class ExportChain {
+class ExportChain {
 
     @NonNull private final List<BaseExport> exports;
 
-    public String process(final InputStream is, final int chunkSize) {
+    String process(final InputStream is, final int chunkSize) {
         try (final StaxStreamProcessor processor = new StaxStreamProcessor(is)) {
             return exports.stream()
                     .map(element -> {

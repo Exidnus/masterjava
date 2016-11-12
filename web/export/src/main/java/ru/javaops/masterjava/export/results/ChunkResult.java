@@ -9,8 +9,8 @@ import lombok.Value;
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class ChunkResult extends Result {
-    String startEmail;
-    String endEmail;
+    String first;
+    String last;
     int size;
 
     public void setFail(String message) {
@@ -19,6 +19,6 @@ public class ChunkResult extends Result {
 
     @Override
     public String toString() {
-        return "Chunk (startEmail='" + startEmail + '\'' + ", endEmail='" + endEmail + "', size:'" + size + "):" + result;
+        return "Chunk (first='" + first + '\'' + ", last='" + last + "', size:'" + size + "):" + result;
     }
 }

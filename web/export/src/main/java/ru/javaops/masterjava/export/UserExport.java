@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserExport extends BaseExport {
 
-    private UserDao userDao = DBIProvider.getDao(UserDao.class);
+    private final UserDao userDao = DBIProvider.getDao(UserDao.class);
     private final CityDao cityDao = DBIProvider.getDao(CityDao.class);
     private final GroupDao groupDao = DBIProvider.getDao(GroupDao.class);
 
@@ -36,22 +35,10 @@ public class UserExport extends BaseExport {
         log.info("Start proseccing with chunkSize=" + chunkSize);
 
         return new Callable<GroupResult>() {
-            class ChunkFuture {
-                private ChunkResult chunkResult;
-                private Future future;
-
-                ChunkFuture(List<User> users, Future future) {
-                    int size = users.size();
-                    this.chunkResult = new ChunkResult(users.get(0).getEmail(), users.get(size - 1).getEmail(), size);
-                    this.future = future;
-                }
-            }
 
             @Override
             public GroupResult call() throws XMLStreamException {
-                GroupResult result = new GroupResult("Users: ");
                 List<ChunkFuture> chunkFutures = new ArrayList<>();
-
                 List<User> chunk = new ArrayList<>(chunkSize);
                 int id = userDao.getSeqAndSkip(chunkSize);
 
@@ -63,7 +50,7 @@ public class UserExport extends BaseExport {
                         .stream()
                         .collect(Collectors.toMap(Group::getName, Group::getId));
 
-                while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
+                while (processor.doUntilAndStopIfAnotherElement(XMLEvent.START_ELEMENT, "User")) {
                     processGroups(id, processor.getAttribute("groupRefs"), groupNamesToIds);
                     final String email = processor.getAttribute("email");
                     final UserFlag flag = UserFlag.valueOf(processor.getAttribute("flag"));
@@ -82,24 +69,17 @@ public class UserExport extends BaseExport {
                 if (!chunk.isEmpty()) {
                     chunkFutures.add(submit(chunk));
                 }
-                chunkFutures.forEach(cf -> {
-                    try {
-                        cf.future.get();
-                    } catch (Exception e) {
-                        cf.chunkResult.setFail(e.getMessage());
-                    }
-                    result.add(cf.chunkResult);
-                });
-                return result;
+
+                return getGroupResultFromFutures(chunkFutures, new GroupResult("Users: "));
             }
 
             private ChunkFuture submit(List<User> chunk) {
                 ChunkFuture chunkFuture = new ChunkFuture(
-                        chunk,
+                        new ChunkResult(chunk.get(0).getEmail(), chunk.get(chunk.size() - 1).getEmail(), chunk.size()),
                         executorService.submit(() -> {
                             userDao.saveChunk(chunk);
                         }));
-                log.info("Submit " + chunkFuture.chunkResult);
+                log.info("Submit " + chunkFuture.getChunkResult());
                 return chunkFuture;
             }
 
