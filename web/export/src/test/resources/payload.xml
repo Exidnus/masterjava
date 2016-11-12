@@ -13,6 +13,10 @@
             <description>Masterjava</description>
             <Group name="masterjava01" type="CURRENT"/>
         </Project>
+        <Project name="some_third_project">
+            <description>Some Third Project</description>
+            <Group name="group01" type="FINISHED"/>
+        </Project>
     </Projects>
     <Cities>
         <City id="spb">Санкт-Петербург</City>

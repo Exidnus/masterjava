@@ -25,7 +25,8 @@ import java.io.InputStream;
 public class UploadServlet extends HttpServlet {
 
     private final ExportChain exportChain = new ExportChain(
-            ImmutableList.of(new CityExport(), new UserExport())
+            //Export classes order must be equal elements order in xml.
+            ImmutableList.of(new ProjectGroupExport(), new CityExport(), new UserExport())
     );
 
     @Override

@@ -2,6 +2,8 @@ package ru.javaops.masterjava.export;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import lombok.extern.slf4j.Slf4j;
+import ru.javaops.masterjava.export.results.ChunkResult;
 import ru.javaops.masterjava.export.results.GroupResult;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.GroupDao;
@@ -16,6 +18,7 @@ import javax.xml.stream.events.XMLEvent;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -23,6 +26,7 @@ import java.util.concurrent.Future;
 /**
  * Created by dmitriy_varygin on 07.11.16.
  */
+@Slf4j
 public class ProjectGroupExport extends BaseExport {
 
     private final GroupDao groupDao = DBIProvider.getDao(GroupDao.class);
@@ -32,35 +36,45 @@ public class ProjectGroupExport extends BaseExport {
 
         final List<Project> projectsInDb = projectDao.getAll();
         final List<Group> buffer = new ArrayList<>(size);
-        final List<Future<?>> results = new ArrayList<>();
-        while (processor.doUntil(XMLEvent.START_ELEMENT, "Project")) {
+        final List<ChunkFuture> chunkFutures = new ArrayList<>();
+
+        Preconditions.checkArgument(processor.doUntil(XMLEvent.START_ELEMENT, "Project"));
+        boolean isNextElementProject;
+        do {
             final String projectName = processor.getAttribute("name");
             final int projectId = getProjectIdAndSaveProjectIfNeed(processor, projectsInDb, projectName);
-            while (processor.doUntil(XMLEvent.START_ELEMENT, "Group")) {
-                final String groupName = processor.getAttribute("name");
-                final GroupType type = GroupType.valueOf(processor.getAttribute("type"));
-                buffer.add(new Group(groupName, type, projectId));
-                if (buffer.size() == size) {
-                    final ImmutableList<Group> forSave = ImmutableList.copyOf(buffer);
-                    buffer.clear();
-                    final Future<?> result = executorService.submit(() -> groupDao.saveListWithoutSkippingSeq(forSave));
-                    results.add(result);
+            boolean isNextElementGroup = true;
+            while (isNextElementGroup) {
+                final String nextElementName = processor.getNextElementName();
+                if (nextElementName.equals("Group")) {
+                    final String groupName = processor.getAttribute("name");
+                    final GroupType type = GroupType.valueOf(processor.getAttribute("type"));
+                    buffer.add(new Group(groupName, type, projectId));
+                } else {
+                    isNextElementGroup = false;
                 }
+                processor.getReader().next();
             }
-        }
+            processor.getReader().next();
+            final String nextElementName = processor.getReader().getLocalName();
+            isNextElementProject = nextElementName.equals("Project");
+        } while (isNextElementProject);
+
         if (!buffer.isEmpty()) {
-            final Future<?> result = executorService.submit(() -> groupDao.saveListWithoutSkippingSeq(buffer));
-            results.add(result);
+            chunkFutures.add(submit(buffer));
         }
 
-        results.forEach(r -> {
-            try {
-                r.get();
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return new GroupResult("Projects and groups: ");
+        return getGroupResultFromFutures(chunkFutures, new GroupResult("Groups: "));
+    }
+
+    private ChunkFuture submit(List<Group> chunk) {
+        ChunkFuture chunkFuture = new ChunkFuture(
+                new ChunkResult(chunk.get(0).getName(), chunk.get(chunk.size() - 1).getName(), chunk.size()),
+                executorService.submit(() -> {
+                    groupDao.saveListWithoutSkippingSeq(chunk);
+                }));
+        log.info("Submit " + chunkFuture.getChunkResult());
+        return chunkFuture;
     }
 
     private int getProjectIdAndSaveProjectIfNeed(final StaxStreamProcessor processor,
@@ -73,12 +87,7 @@ public class ProjectGroupExport extends BaseExport {
         if (optProject.isPresent()) {
             projectId = optProject.get().getId();
         } else {
-            String description = null;
-            while (processor.doUntil(XMLEvent.START_ELEMENT, "description")) {
-                description = processor.getReader().getElementText();
-                break;
-            }
-            Preconditions.checkNotNull(description);
+            final String description = Objects.requireNonNull(processor.getElementValue("description"));
             projectId = projectDao.insertGeneratedId(new Project(projectName, description));
         }
         return projectId;

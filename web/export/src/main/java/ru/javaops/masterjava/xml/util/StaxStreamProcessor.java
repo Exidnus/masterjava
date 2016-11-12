@@ -1,5 +1,7 @@
 package ru.javaops.masterjava.xml.util;
 
+import lombok.Getter;
+
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -13,7 +15,7 @@ import java.io.InputStream;
 public class StaxStreamProcessor implements AutoCloseable {
     private static final XMLInputFactory FACTORY = XMLInputFactory.newInstance();
 
-    private final XMLStreamReader reader;
+    @Getter private final XMLStreamReader reader;
     private boolean isElementFound = false;
 
     public StaxStreamProcessor(InputStream is) throws XMLStreamException {
@@ -75,6 +77,12 @@ public class StaxStreamProcessor implements AutoCloseable {
             }
         }
         return null;
+    }
+
+    public String getNextElementName() throws XMLStreamException {
+        reader.next();
+        reader.next();
+        return reader.getLocalName();
     }
 
     public String getValue(int event) throws XMLStreamException {

@@ -34,7 +34,7 @@ class ExportChain {
                         }
                     })
                     .map(GroupResult::toString)
-                    .collect(Collectors.joining("\n"));
+                    .collect(Collectors.joining("<br/>"));
         } catch (XMLStreamException e) {
             return "Failed read all xml";
         }
