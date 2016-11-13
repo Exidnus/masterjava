@@ -24,8 +24,7 @@ import java.io.InputStream;
 @Slf4j
 public class UploadServlet extends HttpServlet {
 
-    private final ExportChain exportChain = new ExportChain(
-            //Export classes order must be equal elements order in xml.
+    private final ExportChain exportChain = ExportChain.inOrder(
             ImmutableList.of(new ProjectGroupExport(), new CityExport(), new UserExport())
     );
 

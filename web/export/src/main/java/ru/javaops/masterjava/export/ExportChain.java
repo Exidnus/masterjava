@@ -13,10 +13,17 @@ import java.util.stream.Collectors;
 /**
  * Created by dmitriy_varygin on 12.11.16.
  */
-@RequiredArgsConstructor
 class ExportChain {
 
-    @NonNull private final List<BaseExport> exports;
+    private final List<BaseExport> exports;
+
+    private ExportChain(List<BaseExport> exports) {
+        this.exports = exports;
+    }
+
+    static ExportChain inOrder(final List<BaseExport> exports) {
+        return new ExportChain(exports);
+    }
 
     String process(final InputStream is, final int chunkSize) {
         try (final StaxStreamProcessor processor = new StaxStreamProcessor(is)) {
