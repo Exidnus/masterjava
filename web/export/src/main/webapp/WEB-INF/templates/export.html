@@ -6,7 +6,7 @@
 <body>
 <form action="" method="post" enctype="multipart/form-data">
     <!--/*@thymesVar id="message" type="java.lang.String"*/-->
-    <h1 th:text="${message}">Message</h1>
+    <h1 th:utext="${#strings.unescapeJava(#strings.replace(#strings.escapeJava(message),'\n','&lt;br /&gt;'))}">Message</h1>
     <hr>
     <label for="chunkSize">Chunk Size:</label>
     <!--/*@thymesVar id="chunkSize" type="java.lang.Integer"*/-->

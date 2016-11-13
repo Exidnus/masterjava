@@ -66,13 +66,13 @@ public class StaxStreamProcessorTest {
             processor.doUntil(XMLEvent.START_ELEMENT, "Project");
             boolean isNextElementProject;
             do {
-                final String description = processor.getElementValue("description");
-                System.out.println(description);
+                countProjects++;
+                processor.getElementValue("description");
                 boolean isNextElementGroup = true;
                 while (isNextElementGroup) {
                     final String nextElementName = processor.getNextElementName();
                     if (nextElementName.equals("Group")) {
-                        System.out.println(processor.getAttribute("name"));
+                        countGroups++;
                     } else {
                         isNextElementGroup = false;
                     }
@@ -83,8 +83,8 @@ public class StaxStreamProcessorTest {
                 isNextElementProject = nextElementName.equals("Project");
             } while (isNextElementProject);
         }
-//        assertEquals(countProjects, 2);
-//        assertEquals(countGroups, 4);
+        assertEquals(countProjects, 3);
+        assertEquals(countGroups, 5);
     }
 
     private StaxStreamProcessor getStaxStreamProcessor() throws XMLStreamException, IOException {
