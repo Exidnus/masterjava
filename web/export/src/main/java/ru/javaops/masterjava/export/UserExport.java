@@ -3,6 +3,7 @@ package ru.javaops.masterjava.export;
 import lombok.extern.slf4j.Slf4j;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.UserDao;
+import ru.javaops.masterjava.persist.model.City;
 import ru.javaops.masterjava.persist.model.User;
 import ru.javaops.masterjava.persist.model.UserFlag;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
@@ -11,6 +12,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,7 +29,7 @@ public class UserExport {
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
     private UserDao userDao = DBIProvider.getDao(UserDao.class);
 
-    public ProcessPayload.GroupResult process(final StaxStreamProcessor processor, int chunkSize) throws XMLStreamException {
+    public ProcessPayload.GroupResult process(final StaxStreamProcessor processor, Map<String, City> cities, int chunkSize) throws XMLStreamException {
         log.info("Start proseccing with chunkSize=" + chunkSize);
 
         return new Callable<ProcessPayload.GroupResult>() {
@@ -52,14 +54,21 @@ public class UserExport {
 
                 while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
                     final String email = processor.getAttribute("email");
-                    final UserFlag flag = UserFlag.valueOf(processor.getAttribute("flag"));
-                    final String fullName = processor.getReader().getElementText();
-                    final User user = new User(id++, fullName, email, flag, null);
-                    chunk.add(user);
-                    if (chunk.size() == chunkSize) {
-                        chunkFutures.add(submit(chunk));
-                        chunk = new ArrayList<>(chunkSize);
-                        id = userDao.getSeqAndSkip(chunkSize);
+                    String cityRef = processor.getAttribute("city");
+                    City city = cities.get(cityRef);
+                    if (city == null) {
+                        result.add(ProcessPayload.ChunkResult.createWithFail(email, "City '" + cityRef + "' is not present in DB"));
+                    } else {
+                        final UserFlag flag = UserFlag.valueOf(processor.getAttribute("flag"));
+                        final String fullName = processor.getText();
+                        final User user = new User(id++, fullName, email, flag, city.getId());
+
+                        chunk.add(user);
+                        if (chunk.size() == chunkSize) {
+                            chunkFutures.add(submit(chunk));
+                            chunk = new ArrayList<>(chunkSize);
+                            id = userDao.getSeqAndSkip(chunkSize);
+                        }
                     }
                 }
                 if (!chunk.isEmpty()) {

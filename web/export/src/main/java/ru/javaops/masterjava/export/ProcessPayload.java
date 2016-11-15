@@ -2,6 +2,7 @@ package ru.javaops.masterjava.export;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import lombok.val;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 
 import javax.xml.stream.XMLStreamException;
@@ -14,11 +15,13 @@ import java.util.List;
  * 15.11.2016
  */
 public class ProcessPayload {
+    private final CityExport cityExport = new CityExport();
     private final UserExport userExport = new UserExport();
 
     public GroupResult process(InputStream is, int chunkSize) throws XMLStreamException {
-        final StaxStreamProcessor processor = new StaxStreamProcessor(is);
-        return userExport.process(processor, chunkSize);
+        val processor = new StaxStreamProcessor(is);
+        val cities = cityExport.process(processor);
+        return userExport.process(processor, cities, chunkSize);
     }
 
     public static class Result {
@@ -44,7 +47,15 @@ public class ProcessPayload {
 
         @Override
         public String toString() {
-            return "Chunk (startEmail='" + startEmail + '\'' + ", endEmail='" + endEmail + "', size:'" + size + "):" + result;
+            return size == 1 ?
+                    "Chunk (email='" + startEmail + "):" + result :
+                    "Chunk (startEmail='" + startEmail + '\'' + ", endEmail='" + endEmail + "', size:'" + size + "):" + result;
+        }
+
+        public static ChunkResult createWithFail(String email, String fail) {
+            ChunkResult chunkResult = new ChunkResult(email, email, 1);
+            chunkResult.setFail(fail);
+            return chunkResult;
         }
     }
 

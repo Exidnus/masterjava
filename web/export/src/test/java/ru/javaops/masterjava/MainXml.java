@@ -101,7 +101,7 @@ public class MainXml {
                 if (!Collections.disjoint(groupNames, Splitter.on(' ').splitToList(nullToEmpty(groupRefs)))) {
                     User user = new User();
                     user.setEmail(processor.getAttribute("email"));
-                    user.setValue(processor.getReader().getElementText());
+                    user.setValue(processor.getText());
                     users.add(user);
                 }
             }
