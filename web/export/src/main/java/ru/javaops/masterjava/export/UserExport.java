@@ -1,16 +1,20 @@
 package ru.javaops.masterjava.export;
 
+import com.google.common.base.Splitter;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import one.util.streamex.StreamEx;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.UserDao;
-import ru.javaops.masterjava.persist.model.City;
-import ru.javaops.masterjava.persist.model.User;
-import ru.javaops.masterjava.persist.model.UserFlag;
+import ru.javaops.masterjava.persist.dao.UserGroupDao;
+import ru.javaops.masterjava.persist.model.*;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -28,9 +32,16 @@ public class UserExport {
     private static final int NUMBER_THREADS = 4;
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
     private UserDao userDao = DBIProvider.getDao(UserDao.class);
+    private UserGroupDao userGroupDao = DBIProvider.getDao(UserGroupDao.class);
 
-    public ProcessPayload.GroupResult process(final StaxStreamProcessor processor, Map<String, City> cities, int chunkSize) throws XMLStreamException {
+    public ProcessPayload.GroupResult process(final StaxStreamProcessor processor, Map<String, Group> groups, Map<String, City> cities, int chunkSize) throws XMLStreamException {
         log.info("Start proseccing with chunkSize=" + chunkSize);
+
+        @Value
+        class ChunkItem {
+            private User user;
+            private StreamEx<UserGroup> userGroups;
+        }
 
         return new Callable<ProcessPayload.GroupResult>() {
             class ChunkFuture {
@@ -46,10 +57,10 @@ public class UserExport {
 
             @Override
             public ProcessPayload.GroupResult call() throws XMLStreamException {
-                ProcessPayload.GroupResult result = new ProcessPayload.GroupResult();
-                List<ChunkFuture> chunkFutures = new ArrayList<>();
+                val result = new ProcessPayload.GroupResult();
+                val chunkFutures = new ArrayList<ChunkFuture>();
 
-                List<User> chunk = new ArrayList<>(chunkSize);
+                List<ChunkItem> chunk = new ArrayList<>(chunkSize);
                 int id = userDao.getSeqAndSkip(chunkSize);
 
                 while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
@@ -59,15 +70,24 @@ public class UserExport {
                     if (city == null) {
                         result.add(ProcessPayload.ChunkResult.createWithFail(email, "City '" + cityRef + "' is not present in DB"));
                     } else {
-                        final UserFlag flag = UserFlag.valueOf(processor.getAttribute("flag"));
-                        final String fullName = processor.getText();
-                        final User user = new User(id++, fullName, email, flag, city.getId());
+                        val groupRefs = processor.getAttribute("groupRefs");
+                        List<String> groupNames = (groupRefs == null) ?
+                                Collections.emptyList() :
+                                Splitter.on(' ').splitToList(groupRefs);
 
-                        chunk.add(user);
-                        if (chunk.size() == chunkSize) {
-                            chunkFutures.add(submit(chunk));
-                            chunk = new ArrayList<>(chunkSize);
-                            id = userDao.getSeqAndSkip(chunkSize);
+                        if (!groups.keySet().containsAll(groupNames)) {
+                            result.add(ProcessPayload.ChunkResult.createWithFail(email, "One of group from '" + groupRefs + "' is not present in DB"));
+                        } else {
+                            final UserFlag flag = UserFlag.valueOf(processor.getAttribute("flag"));
+                            final String fullName = processor.getText();
+                            final User user = new User(id++, fullName, email, flag, city.getId());
+                            StreamEx<UserGroup> userGroups = StreamEx.of(groupNames).map(name -> new UserGroup(user.getId(), groups.get(name).getId()));
+                            chunk.add(new ChunkItem(user, userGroups));
+                            if (chunk.size() == chunkSize) {
+                                chunkFutures.add(submit(chunk));
+                                chunk = new ArrayList<>(chunkSize);
+                                id = userDao.getSeqAndSkip(chunkSize);
+                            }
                         }
                     }
                 }
@@ -85,11 +105,13 @@ public class UserExport {
                 return result;
             }
 
-            private ChunkFuture submit(List<User> chunk) {
+            private ChunkFuture submit(List<ChunkItem> chunk) {
+                val users = StreamEx.of(chunk).map(ChunkItem::getUser).toList();
                 ChunkFuture chunkFuture = new ChunkFuture(
-                        chunk,
+                        users,
                         executorService.submit(() -> {
-                            userDao.insertBatch(chunk);
+                            userDao.insertBatch(users);
+                            userGroupDao.insertBatch(StreamEx.of(chunk).flatMap(ChunkItem::getUserGroups).toList());
                         }));
                 log.info("Submit " + chunkFuture.chunkResult);
                 return chunkFuture;

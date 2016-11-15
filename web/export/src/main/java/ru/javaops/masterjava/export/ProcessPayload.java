@@ -17,11 +17,13 @@ import java.util.List;
 public class ProcessPayload {
     private final CityExport cityExport = new CityExport();
     private final UserExport userExport = new UserExport();
+    private final ProjectGroupExport projectGroupExport = new ProjectGroupExport();
 
     public GroupResult process(InputStream is, int chunkSize) throws XMLStreamException {
         val processor = new StaxStreamProcessor(is);
+        val groups = projectGroupExport.process(processor);
         val cities = cityExport.process(processor);
-        return userExport.process(processor, cities, chunkSize);
+        return userExport.process(processor, groups, cities, chunkSize);
     }
 
     public static class Result {
@@ -48,8 +50,8 @@ public class ProcessPayload {
         @Override
         public String toString() {
             return size == 1 ?
-                    "Chunk (email='" + startEmail + "):" + result :
-                    "Chunk (startEmail='" + startEmail + '\'' + ", endEmail='" + endEmail + "', size:'" + size + "):" + result;
+                    "Chunk (email='" + startEmail + "'): " + result :
+                    "Chunk (startEmail='" + startEmail + '\'' + ", endEmail='" + endEmail + "', size:'" + size + "): " + result;
         }
 
         public static ChunkResult createWithFail(String email, String fail) {
