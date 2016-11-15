@@ -1,7 +1,5 @@
 package ru.javaops.masterjava.export;
 
-import lombok.EqualsAndHashCode;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import ru.javaops.masterjava.persist.DBIProvider;
 import ru.javaops.masterjava.persist.dao.UserDao;
@@ -11,7 +9,6 @@ import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -30,73 +27,24 @@ public class UserExport {
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
     private UserDao userDao = DBIProvider.getDao(UserDao.class);
 
-    public static class Result {
-        private static final String OK = "OK";
-
-        public String result = OK;
-
-        public boolean isOK() {
-            return OK.equals(result);
-        }
-    }
-
-    @Value
-    @EqualsAndHashCode(callSuper = true)
-    public static class ChunkResult extends Result {
-        String startEmail;
-        String endEmail;
-        int size;
-
-        public void setFail(String message) {
-            result = message;
-        }
-
-        @Override
-        public String toString() {
-            return "Chunk (startEmail='" + startEmail + '\'' + ", endEmail='" + endEmail + "', size:'" + size + "):" + result;
-        }
-    }
-
-    public static class GroupResult extends Result {
-        public List<ChunkResult> chunkResults = new ArrayList<>();
-        public int successful;
-        public int failed;
-
-        private void add(ChunkResult chunkResult) {
-            chunkResults.add(chunkResult);
-            if (chunkResult.isOK()) {
-                successful += chunkResult.size;
-            } else {
-                failed += chunkResult.size;
-                result = isOK() ? chunkResult.toString() : "------------------------\n" + chunkResult.toString();
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "Result (successful=" + successful + ", failed=" + failed + "): " + result;
-        }
-    }
-
-    public GroupResult process(final InputStream is, int chunkSize) throws XMLStreamException {
-        final StaxStreamProcessor processor = new StaxStreamProcessor(is);
+    public ProcessPayload.GroupResult process(final StaxStreamProcessor processor, int chunkSize) throws XMLStreamException {
         log.info("Start proseccing with chunkSize=" + chunkSize);
 
-        return new Callable<GroupResult>() {
+        return new Callable<ProcessPayload.GroupResult>() {
             class ChunkFuture {
-                private ChunkResult chunkResult;
+                private ProcessPayload.ChunkResult chunkResult;
                 private Future future;
 
                 public ChunkFuture(List<User> users, Future future) {
                     int size = users.size();
-                    this.chunkResult = new ChunkResult(users.get(0).getEmail(), users.get(size - 1).getEmail(), size);
+                    this.chunkResult = new ProcessPayload.ChunkResult(users.get(0).getEmail(), users.get(size - 1).getEmail(), size);
                     this.future = future;
                 }
             }
 
             @Override
-            public GroupResult call() throws XMLStreamException {
-                GroupResult result = new GroupResult();
+            public ProcessPayload.GroupResult call() throws XMLStreamException {
+                ProcessPayload.GroupResult result = new ProcessPayload.GroupResult();
                 List<ChunkFuture> chunkFutures = new ArrayList<>();
 
                 List<User> chunk = new ArrayList<>(chunkSize);
@@ -106,7 +54,7 @@ public class UserExport {
                     final String email = processor.getAttribute("email");
                     final UserFlag flag = UserFlag.valueOf(processor.getAttribute("flag"));
                     final String fullName = processor.getReader().getElementText();
-                    final User user = new User(id++, fullName, email, flag);
+                    final User user = new User(id++, fullName, email, flag, null);
                     chunk.add(user);
                     if (chunk.size() == chunkSize) {
                         chunkFutures.add(submit(chunk));

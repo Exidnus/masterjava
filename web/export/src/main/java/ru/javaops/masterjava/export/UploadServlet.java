@@ -23,7 +23,7 @@ import java.io.InputStream;
 @Slf4j
 public class UploadServlet extends HttpServlet {
 
-    private final UserExport userExport = new UserExport();
+    private final ProcessPayload processPayload = new ProcessPayload();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -63,7 +63,7 @@ public class UploadServlet extends HttpServlet {
                     message = "Upload file is not selected";
                 } else {
                     try (InputStream is = item.openStream()) {
-                        UserExport.GroupResult result = userExport.process(is, chunkSize);
+                        ProcessPayload.GroupResult result = processPayload.process(is, chunkSize);
                         message = result.toString();
                     }
                     log.info("XML successfully uploaded");
@@ -71,7 +71,8 @@ public class UploadServlet extends HttpServlet {
                 }
             }
         } catch (Exception e) {
-            log.info(e.getMessage());
+            log.info(e.getMessage(), e);
+            message = e.toString();
         }
         outExport(req, resp, message, chunkSize);
     }
