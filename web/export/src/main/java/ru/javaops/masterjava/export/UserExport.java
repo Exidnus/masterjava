@@ -132,7 +132,7 @@ public class UserExport {
                 ChunkFuture chunkFuture = new ChunkFuture(
                         chunk,
                         executorService.submit(() -> {
-                            userDao.saveChunk(chunk);
+                            userDao.insertBatch(chunk);
                         }));
                 log.info("Submit " + chunkFuture.chunkResult);
                 return chunkFuture;
