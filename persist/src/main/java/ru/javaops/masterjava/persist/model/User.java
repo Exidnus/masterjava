@@ -7,6 +7,7 @@ import lombok.*;
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@ToString(callSuper = true)
 public class User extends BaseEntity {
     @Column("full_name")
     private @NonNull String fullName;
