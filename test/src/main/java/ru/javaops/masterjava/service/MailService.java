@@ -50,28 +50,7 @@ public class MailService {
                         return cancelWithFail(INTERRUPTED_EXCEPTION);
                     }
                 }
-/*
-                for (Future<MailResult> future : futures) {
-                    MailResult mailResult;
-                    try {
-                        mailResult = future.get(10, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        return cancelWithFail(INTERRUPTED_EXCEPTION);
-                    } catch (ExecutionException e) {
-                        return cancelWithFail(e.getCause().toString());
-                    } catch (TimeoutException e) {
-                        return cancelWithFail(INTERRUPTED_BY_TIMEOUT);
-                    }
-                    if (mailResult.isOk()) {
-                        success++;
-                    } else {
-                        failed.add(mailResult);
-                        if (failed.size() >= 5) {
-                            return cancelWithFail(INTERRUPTED_BY_FAULTS_NUMBER);
-                        }
-                    }
-                }
-*/
+
                 return new GroupResult(success, failed, null);
             }
 
